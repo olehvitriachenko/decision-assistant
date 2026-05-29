@@ -1,11 +1,7 @@
 import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
-import {
-  CategoryBadge,
-  ConfidenceBadge,
-  DecisionStatusBadge,
-} from "@/components/decisions/decision-badges";
-import { Badge } from "@/components/ui/badge";
+import { DecisionAnalysisCard } from "@/components/decisions/decision-analysis-card";
+import { DecisionStatusBadge } from "@/components/decisions/decision-badges";
 import {
   Card,
   CardContent,
@@ -91,84 +87,8 @@ export function DecisionDetailView({
         </Card>
       ) : null}
 
-      {decision.status === "failed" && !analysis ? (
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardHeader>
-            <CardTitle className="text-base">Analysis unavailable</CardTitle>
-            <CardDescription>
-              The AI analysis could not be completed for this decision.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : null}
-
-      {analysis ? (
-        <Card>
-          <CardHeader className="gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <CategoryBadge category={analysis.category} />
-              <ConfidenceBadge confidence={analysis.confidence} />
-            </div>
-            <div className="space-y-1">
-              <CardTitle className="text-xl">AI Analysis</CardTitle>
-              <CardDescription>
-                Insights generated from your decision context.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="space-y-2">
-              <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Summary
-              </h3>
-              <p className="text-base leading-relaxed text-pretty">
-                {analysis.summary}
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Possible biases
-              </h3>
-              {analysis.biases.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {analysis.biases.map((bias) => (
-                    <Badge key={bias} variant="secondary">
-                      {bias}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No notable biases identified.
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Missed alternatives
-              </h3>
-              {analysis.alternatives.length > 0 ? (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {analysis.alternatives.map((alternative) => (
-                    <Card key={alternative} size="sm" className="bg-muted/20">
-                      <CardHeader>
-                        <CardDescription className="text-sm leading-relaxed text-foreground">
-                          {alternative}
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No alternatives identified.
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      {(analysis || decision.status === "failed") ? (
+        <DecisionAnalysisCard decision={decision} analysis={analysis} />
       ) : null}
     </div>
   );
