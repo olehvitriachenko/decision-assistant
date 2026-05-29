@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus, Sparkles } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
@@ -12,6 +13,7 @@ import { getUser } from "@/lib/supabase/auth";
 import { DashboardInsights } from "@/components/dashboard/dashboard-insights";
 import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
+import { EmptyStateCard } from "@/components/layout/empty-state-card";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +32,7 @@ export default async function DashboardPage() {
   ]);
 
   const showViewAll = total > DASHBOARD_PREVIEW_LIMIT;
+  const isEmpty = total === 0;
   const processingDecisionIds = decisions
     .filter((decision) => decision.status === "processing")
     .map((decision) => decision.id);
@@ -51,21 +54,36 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <DashboardInsights insights={insights} />
+      {isEmpty ? (
+        <EmptyStateCard
+          icon={Sparkles}
+          title={m.dashboard.emptyTitle}
+          description={m.dashboard.emptyDescription}
+          action={{
+            href: routes.decisionsNew,
+            label: m.nav.newDecision,
+            icon: Plus,
+          }}
+        />
+      ) : (
+        <>
+          <DashboardInsights insights={insights} hasDecisions />
 
-      <section className="space-y-4">
-        <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-          {m.dashboard.recentDecisions}
-        </h2>
-        <DecisionsList decisions={decisions} />
-        {showViewAll ? (
-          <div className="flex justify-center pt-2">
-            <Button asChild variant="outline">
-              <Link href={routes.decisions}>{m.dashboard.viewAllDecisions}</Link>
-            </Button>
-          </div>
-        ) : null}
-      </section>
+          <section className="space-y-4">
+            <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+              {m.dashboard.recentDecisions}
+            </h2>
+            <DecisionsList decisions={decisions} />
+            {showViewAll ? (
+              <div className="flex justify-center pt-2">
+                <Button asChild variant="outline">
+                  <Link href={routes.decisions}>{m.dashboard.viewAllDecisions}</Link>
+                </Button>
+              </div>
+            ) : null}
+          </section>
+        </>
+      )}
     </PageContainer>
   );
 }

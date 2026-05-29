@@ -1,4 +1,5 @@
 import { getBiasDescription } from "@/lib/bias-descriptions";
+import { m } from "@/lib/i18n/uk";
 import {
   Card,
   CardDescription,
@@ -10,7 +11,7 @@ export function BiasInsightsList({ biases }: { biases: string[] }) {
   if (biases.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No notable biases identified.
+        {m.decisions.analysis.noBiases}
       </p>
     );
   }

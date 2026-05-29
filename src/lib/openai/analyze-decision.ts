@@ -2,6 +2,12 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
+import {
+  biasRegistryKeySchema,
+  getBiasPromptWhitelist,
+  normalizeAnalysisBiases,
+} from "@/lib/biases/registry";
+
 const MODEL = "gpt-4.1-mini";
 
 export const analyzeDecisionInputSchema = z.object({
@@ -21,7 +27,11 @@ export const decisionAnalysisSchema = z.object({
     .describe(
       "Integer 0-100: how well-supported the stated decision is based only on the provided information. Use the full range with granular values (e.g. 23, 58, 84). 0-39=low, 40-69=medium, 70-100=high."
     ),
-  biases: z.array(z.string().trim().min(1)),
+  biases: z
+    .array(biasRegistryKeySchema)
+    .describe(
+      "Cognitive bias keys from the allowed whitelist only. Return [] if none apply."
+    ),
   alternatives: z.array(z.string().trim().min(1)),
   summary: z.string().trim().min(1),
 });
@@ -58,7 +68,10 @@ const SYSTEM_PROMPT = `Ти — помічник з аналізу рішень.
 Проаналізуй контекст рішення користувача та поверни структурований JSON:
 - category: короткий ключ типу рішення англійською малими літерами (наприклад: career, finance, relationship, health, education, lifestyle)
 - confidence: ціле число від 0 до 100 (див. шкалу нижче)
-- biases: масив можливих когнітивних упереджень англійською (наприклад: confirmation bias, sunk cost fallacy); порожній масив, якщо упереджень не видно
+- biases: масив ключів когнітивних упереджень ТІЛЬКИ зі списку нижче (копіюй ключ дослівно, без змін):
+${getBiasPromptWhitelist()}
+  Якщо жодне не підходить — поверни порожній масив [].
+  Не додавай ключів поза цим списком.
 - alternatives: масив розумних альтернатив українською, які користувач міг упустити; додай хоча б одну, коли це можливо
 - summary: стислий підсумок українською (2–4 речення): ситуація, ключові компроміси та рамка рекомендації
 
@@ -127,5 +140,8 @@ export async function analyzeDecision(
     );
   }
 
-  return validated.data;
+  return {
+    ...validated.data,
+    biases: normalizeAnalysisBiases(validated.data.biases),
+  };
 }

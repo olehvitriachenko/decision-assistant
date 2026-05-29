@@ -41,6 +41,7 @@ export type DecisionSupportStats = {
 export type DashboardFrequencyItem = {
   label: string;
   count: number;
+  key?: string;
 };
 
 export type DecisionDashboardInsights = {

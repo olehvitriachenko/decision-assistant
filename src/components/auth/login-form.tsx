@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, type KeyboardEvent } from "react";
 
 import { routes } from "@/lib/config/routes";
 import {
@@ -29,13 +29,28 @@ export function LoginForm() {
     initialState
   );
 
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || event.shiftKey || isPending) {
+      return;
+    }
+
+    const target = event.target;
+
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.requestSubmit();
+  }
+
   return (
     <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader className="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
         <CardTitle>{m.auth.signIn}</CardTitle>
         <CardDescription>{m.auth.signInDescription}</CardDescription>
       </CardHeader>
-      <form action={formAction}>
+      <form action={formAction} onKeyDown={handleKeyDown}>
         <CardContent className="space-y-5 px-6 sm:px-8">
           {state.error ? (
             <p className="text-sm text-destructive" role="alert">

@@ -10,10 +10,9 @@ import {
   DecisionStatusBadge,
   SupportScoreBadge,
 } from "@/components/decisions/decision-badges";
-import { Button } from "@/components/ui/button";
+import { EmptyStateCard } from "@/components/layout/empty-state-card";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -55,31 +54,30 @@ export function DecisionsList({
 }) {
   if (decisions.length === 0) {
     return (
-      <Card className="border-dashed border-border/60 bg-muted/20 backdrop-blur-sm">
-        <CardContent className="flex flex-col items-center px-6 py-14 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full border border-border/60 bg-background/80 backdrop-blur-sm">
-            <Inbox className="size-5 text-muted-foreground" aria-hidden="true" />
-          </span>
-          <CardTitle className="mt-4">
-            {hasActiveFilters
-              ? m.decisions.list.emptyFilteredTitle
-              : m.decisions.list.emptyTitle}
-          </CardTitle>
-          <CardDescription className="mt-2 max-w-sm text-balance">
-            {hasActiveFilters
-              ? m.decisions.list.emptyFilteredDescription
-              : m.decisions.list.emptyDescription}
-          </CardDescription>
-          {!hasActiveFilters ? (
-            <Button asChild className="mt-6">
-              <Link href={routes.decisionsNew}>
-                <Plus className="size-4" aria-hidden="true" />
-                {m.nav.newDecision}
-              </Link>
-            </Button>
-          ) : null}
-        </CardContent>
-      </Card>
+      <EmptyStateCard
+        icon={Inbox}
+        title={
+          hasActiveFilters
+            ? m.decisions.list.emptyFilteredTitle
+            : m.decisions.list.emptyTitle
+        }
+        description={
+          hasActiveFilters
+            ? m.decisions.list.emptyFilteredDescription
+            : m.decisions.list.emptyDescription
+        }
+        action={
+          hasActiveFilters
+            ? undefined
+            : {
+                href: routes.decisionsNew,
+                label: m.nav.newDecision,
+                icon: Plus,
+              }
+        }
+        variant="dashed"
+        iconRounded="full"
+      />
     );
   }
 

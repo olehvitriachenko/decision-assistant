@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, Sparkles } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useState, type KeyboardEvent } from "react";
 
 import {
   createDecision,
@@ -62,6 +62,28 @@ export function DecisionForm() {
   const hasError = hasFormErrors(state);
   const canSubmit = isCreateDecisionFormFilled(values);
 
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || !canSubmit || isPending) {
+      return;
+    }
+
+    const target = event.target;
+
+    if (target instanceof HTMLInputElement) {
+      event.preventDefault();
+      event.currentTarget.requestSubmit();
+      return;
+    }
+
+    if (
+      target instanceof HTMLTextAreaElement &&
+      (event.metaKey || event.ctrlKey)
+    ) {
+      event.preventDefault();
+      event.currentTarget.requestSubmit();
+    }
+  }
+
   return (
     <Card className="w-full border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader>
@@ -69,7 +91,7 @@ export function DecisionForm() {
         <CardDescription>{m.decisions.form.description}</CardDescription>
       </CardHeader>
 
-      <form action={formAction} className="space-y-0">
+      <form action={formAction} className="space-y-0" onKeyDown={handleKeyDown}>
         <CardContent className="space-y-6">
           {hasError && state.error ? (
             <p className="text-sm text-destructive" role="alert">

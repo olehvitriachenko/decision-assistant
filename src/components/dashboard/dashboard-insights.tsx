@@ -1,14 +1,12 @@
-import Link from "next/link";
 import { Brain, ShieldCheck, Sparkles, Tags } from "lucide-react";
 
-import { routes } from "@/lib/config/routes";
-import { getBiasDescription } from "@/lib/bias-descriptions";
+import { getBiasDescriptionByKey } from "@/lib/bias-descriptions";
 import type { DecisionDashboardInsights } from "@/lib/db/decisions";
 import { formatAnalyzedDecisionCount } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
 import { supportLevelLabels } from "@/lib/support-score";
 import { FrequencyBarList, formatSupportDistributionValue } from "@/components/dashboard/frequency-bar-list";
-import { Button } from "@/components/ui/button";
+import { EmptyStateCard } from "@/components/layout/empty-state-card";
 import {
   Card,
   CardContent,
@@ -37,12 +35,18 @@ const supportDistributionItems = [
 
 export function DashboardInsights({
   insights,
+  hasDecisions = true,
 }: {
   insights: DecisionDashboardInsights;
+  hasDecisions?: boolean;
 }) {
   const hasData = insights.analyzedCount > 0;
 
   if (!hasData) {
+    if (!hasDecisions) {
+      return null;
+    }
+
     return (
       <section className="space-y-4">
         <div className="space-y-1">
@@ -51,24 +55,11 @@ export function DashboardInsights({
           </h2>
         </div>
 
-        <Card className="border-border/60 bg-card/50 backdrop-blur-sm">
-          <CardContent className="flex flex-col items-center gap-4 px-6 py-10 text-center">
-            <span className="flex size-12 items-center justify-center rounded-2xl border border-border/60 bg-muted/30">
-              <Sparkles className="size-5 text-muted-foreground" aria-hidden="true" />
-            </span>
-            <div className="space-y-2">
-              <p className="text-base font-medium">
-                {m.dashboard.insightsEmptyTitle}
-              </p>
-              <p className="max-w-md text-sm text-muted-foreground text-pretty">
-                {m.dashboard.insightsEmptyDescription}
-              </p>
-            </div>
-            <Button asChild>
-              <Link href={routes.decisionsNew}>{m.nav.newDecision}</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyStateCard
+          icon={Sparkles}
+          title={m.dashboard.insightsPendingTitle}
+          description={m.dashboard.insightsPendingDescription}
+        />
       </section>
     );
   }
@@ -130,7 +121,11 @@ export function DashboardInsights({
               items={insights.biases}
               emptyMessage={m.dashboard.noBiasData}
               barClassName="bg-amber-500/70 dark:bg-amber-400/70"
-              getHint={(item) => getBiasDescription(item.label).description || undefined}
+              getHint={(item) =>
+                item.key
+                  ? getBiasDescriptionByKey(item.key).description
+                  : undefined
+              }
             />
           </CardContent>
         </Card>

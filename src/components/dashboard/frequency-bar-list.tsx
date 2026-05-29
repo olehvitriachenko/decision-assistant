@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 type FrequencyBarItem = {
   label: string;
   count: number;
+  key?: string;
 };
 
 export function FrequencyBarList({
