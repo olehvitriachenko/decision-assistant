@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
+  DEFAULT_DECISION_BIAS_FILTER,
   DEFAULT_DECISION_CATEGORY_FILTER,
   DEFAULT_DECISION_SORT,
   DEFAULT_DECISION_STATUS_FILTER,
@@ -18,8 +19,10 @@ import {
   decisionStatusFilterOptions,
   type DecisionStatusFilter,
   decisionsListHref,
+  getBiasFilterLabel,
   hasActiveDecisionListFilters,
 } from "@/lib/config/decision-list-params";
+import type { DecisionBiasFilterOption } from "@/lib/db/decisions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -44,6 +47,7 @@ function updateSearchParams(
     updates.category ??
     current.get("category") ??
     DEFAULT_DECISION_CATEGORY_FILTER;
+  const bias = updates.bias ?? current.get("bias") ?? DEFAULT_DECISION_BIAS_FILTER;
 
   next.delete("page");
 
@@ -65,14 +69,29 @@ function updateSearchParams(
     next.set("category", category);
   }
 
+  if (bias === DEFAULT_DECISION_BIAS_FILTER) {
+    next.delete("bias");
+  } else {
+    next.set("bias", bias);
+  }
+
   return next;
 }
 
-export function DecisionsToolbar({ query }: { query: DecisionListQuery }) {
+export function DecisionsToolbar({
+  query,
+  biasOptions,
+}: {
+  query: DecisionListQuery;
+  biasOptions: DecisionBiasFilterOption[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasActiveFilters = hasActiveDecisionListFilters(query);
+  const selectedBiasIsAvailable =
+    query.bias === DEFAULT_DECISION_BIAS_FILTER ||
+    biasOptions.some((option) => option.key === query.bias);
 
   function navigate(updates: Partial<DecisionListQuery>) {
     const next = updateSearchParams(searchParams, updates);
@@ -82,7 +101,7 @@ export function DecisionsToolbar({ query }: { query: DecisionListQuery }) {
 
   return (
     <div className="space-y-4 rounded-xl border border-border/60 bg-card/50 p-4">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-2">
           <Label htmlFor="decisions-sort">Sort by</Label>
           <Select
@@ -125,7 +144,7 @@ export function DecisionsToolbar({ query }: { query: DecisionListQuery }) {
           </Select>
         </div>
 
-        <div className="space-y-2 sm:col-span-2 xl:col-span-1">
+        <div className="space-y-2">
           <Label htmlFor="decisions-category">Category</Label>
           <Select
             value={query.category}
@@ -140,6 +159,30 @@ export function DecisionsToolbar({ query }: { query: DecisionListQuery }) {
               {decisionCategoryFilterOptions.map((option) => (
                 <SelectItem key={option} value={option}>
                   {decisionCategoryFilterLabels[option]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="decisions-bias">Bias</Label>
+          <Select
+            value={
+              selectedBiasIsAvailable ? query.bias : DEFAULT_DECISION_BIAS_FILTER
+            }
+            onValueChange={(value) => navigate({ bias: value })}
+          >
+            <SelectTrigger id="decisions-bias" className="w-full">
+              <SelectValue placeholder="Bias" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={DEFAULT_DECISION_BIAS_FILTER}>
+                All Biases
+              </SelectItem>
+              {biasOptions.map((option) => (
+                <SelectItem key={option.key} value={option.key}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -166,6 +209,11 @@ export function DecisionsToolbar({ query }: { query: DecisionListQuery }) {
             {query.category !== DEFAULT_DECISION_CATEGORY_FILTER ? (
               <Badge variant="secondary">
                 Category: {decisionCategoryFilterLabels[query.category]}
+              </Badge>
+            ) : null}
+            {query.bias !== DEFAULT_DECISION_BIAS_FILTER ? (
+              <Badge variant="secondary">
+                Bias: {getBiasFilterLabel(query.bias, biasOptions)}
               </Badge>
             ) : null}
           </div>

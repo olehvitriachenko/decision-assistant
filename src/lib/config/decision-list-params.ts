@@ -6,6 +6,8 @@ export const decisionSortOptions = [
   "oldest",
   "confidence_high",
   "confidence_low",
+  "complexity_high",
+  "complexity_low",
   "title_asc",
   "title_desc",
 ] as const;
@@ -19,6 +21,8 @@ export const decisionSortLabels: Record<DecisionSortOption, string> = {
   oldest: "Oldest First",
   confidence_high: "Highest Support Score",
   confidence_low: "Lowest Support Score",
+  complexity_high: "Highest Complexity",
+  complexity_low: "Lowest Complexity",
   title_asc: "Title A → Z",
   title_desc: "Title Z → A",
 };
@@ -75,12 +79,16 @@ export type DecisionListQuery = {
   sort: DecisionSortOption;
   status: DecisionStatusFilter;
   category: DecisionCategoryFilter;
+  bias: string;
 };
+
+export const DEFAULT_DECISION_BIAS_FILTER = "all";
 
 export const DEFAULT_DECISION_LIST_QUERY: DecisionListQuery = {
   sort: DEFAULT_DECISION_SORT,
   status: DEFAULT_DECISION_STATUS_FILTER,
   category: DEFAULT_DECISION_CATEGORY_FILTER,
+  bias: DEFAULT_DECISION_BIAS_FILTER,
 };
 
 export function parseDecisionSortParam(
@@ -122,15 +130,25 @@ export function parseDecisionCategoryFilterParam(
   return DEFAULT_DECISION_CATEGORY_FILTER;
 }
 
+export function parseDecisionBiasFilterParam(value: string | undefined) {
+  if (!value || value === DEFAULT_DECISION_BIAS_FILTER) {
+    return DEFAULT_DECISION_BIAS_FILTER;
+  }
+
+  return value.trim().toLowerCase();
+}
+
 export function parseDecisionListQuery(searchParams: {
   sort?: string;
   status?: string;
   category?: string;
+  bias?: string;
 }): DecisionListQuery {
   return {
     sort: parseDecisionSortParam(searchParams.sort),
     status: parseDecisionStatusFilterParam(searchParams.status),
     category: parseDecisionCategoryFilterParam(searchParams.category),
+    bias: parseDecisionBiasFilterParam(searchParams.bias),
   };
 }
 
@@ -167,7 +185,26 @@ export function hasActiveDecisionListFilters(query: DecisionListQuery) {
   return (
     query.sort !== DEFAULT_DECISION_SORT ||
     query.status !== DEFAULT_DECISION_STATUS_FILTER ||
-    query.category !== DEFAULT_DECISION_CATEGORY_FILTER
+    query.category !== DEFAULT_DECISION_CATEGORY_FILTER ||
+    query.bias !== DEFAULT_DECISION_BIAS_FILTER
+  );
+}
+
+export function getBiasFilterLabel(
+  biasKey: string,
+  options: Array<{ key: string; label: string }>
+) {
+  if (biasKey === DEFAULT_DECISION_BIAS_FILTER) {
+    return "All Biases";
+  }
+
+  return (
+    options.find((option) => option.key === biasKey)?.label ??
+    biasKey
+      .split(/[\s_-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ")
   );
 }
 
@@ -176,11 +213,13 @@ export function decisionsListHref(options?: {
   sort?: DecisionSortOption;
   status?: DecisionStatusFilter;
   category?: DecisionCategoryFilter;
+  bias?: string;
 }) {
   const params = new URLSearchParams();
   const sort = options?.sort ?? DEFAULT_DECISION_SORT;
   const status = options?.status ?? DEFAULT_DECISION_STATUS_FILTER;
   const category = options?.category ?? DEFAULT_DECISION_CATEGORY_FILTER;
+  const bias = options?.bias ?? DEFAULT_DECISION_BIAS_FILTER;
 
   if (sort !== DEFAULT_DECISION_SORT) {
     params.set("sort", sort);
@@ -192,6 +231,10 @@ export function decisionsListHref(options?: {
 
   if (category !== DEFAULT_DECISION_CATEGORY_FILTER) {
     params.set("category", category);
+  }
+
+  if (bias !== DEFAULT_DECISION_BIAS_FILTER) {
+    params.set("bias", bias);
   }
 
   if (options?.page && options.page > 1) {

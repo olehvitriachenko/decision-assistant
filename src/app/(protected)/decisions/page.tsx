@@ -9,6 +9,7 @@ import {
 import { routes } from "@/lib/config/routes";
 import {
   DECISIONS_PAGE_SIZE,
+  getDecisionBiasFilterOptions,
   getDecisionSupportStats,
   getDecisionsByUserIdPaginated,
 } from "@/lib/db/decisions";
@@ -38,6 +39,7 @@ export default async function DecisionsPage({
     sort?: string;
     status?: string;
     category?: string;
+    bias?: string;
   }>;
 }) {
   const user = await getUser();
@@ -50,7 +52,7 @@ export default async function DecisionsPage({
   const page = parsePageParam(params.page);
   const query = parseDecisionListQuery(params);
 
-  const [result, stats] = await Promise.all([
+  const [result, stats, biasOptions] = await Promise.all([
     getDecisionsByUserIdPaginated(
       user.id,
       page,
@@ -58,10 +60,18 @@ export default async function DecisionsPage({
       query
     ),
     getDecisionSupportStats(user.id),
+    getDecisionBiasFilterOptions(user.id),
   ]);
 
   if (page > result.totalPages && result.total > 0) {
-    redirect(decisionsListHref({ sort: query.sort, status: query.status, category: query.category }));
+    redirect(
+      decisionsListHref({
+        sort: query.sort,
+        status: query.status,
+        category: query.category,
+        bias: query.bias,
+      })
+    );
   }
 
   const processingDecisionIds = result.decisions
@@ -83,7 +93,7 @@ export default async function DecisionsPage({
       <section className="space-y-6">
         <DecisionsStats stats={stats} />
         <Suspense fallback={null}>
-          <DecisionsToolbar query={result.query} />
+          <DecisionsToolbar query={result.query} biasOptions={biasOptions} />
         </Suspense>
         <DecisionsList
           decisions={result.decisions}

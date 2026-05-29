@@ -15,6 +15,7 @@ import {
 import { normalizeDecisionCategory } from "@/lib/config/decision-list-params";
 import { normalizeBias } from "@/lib/normalize-bias";
 import { getSupportLevel } from "@/lib/support-score";
+import { getDecisionComplexityScore } from "@/lib/decision-complexity";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDecisionInput } from "@/lib/validations/decision";
 import type { Decision, DecisionListItem, DecisionStatus } from "@/lib/types/decision";
@@ -51,6 +52,19 @@ export type DecisionDashboardInsights = {
     medium: number;
     low: number;
   };
+};
+
+export type DecisionBiasFilterOption = {
+  key: string;
+  label: string;
+  count: number;
+};
+
+type AnalysisSummary = {
+  category: string;
+  confidence: number;
+  biases: string[];
+  created_at: string;
 };
 
 const DASHBOARD_INSIGHTS_LIMIT = 6;
@@ -104,7 +118,7 @@ function countCategoryFrequencies(values: string[]) {
 }
 
 function countBiasFrequencies(values: string[]) {
-  const counts = new Map<string, { label: string; count: number }>();
+  const counts = new Map<string, { key: string; label: string; count: number }>();
 
   for (const value of values) {
     const normalized = normalizeBias(value);
@@ -121,6 +135,7 @@ function countBiasFrequencies(values: string[]) {
     }
 
     counts.set(normalized.key, {
+      key: normalized.key,
       label: normalized.label,
       count: 1,
     });
@@ -142,7 +157,10 @@ function needsAnalysisAwareQuery(query: DecisionListQuery) {
   return (
     query.sort === "confidence_high" ||
     query.sort === "confidence_low" ||
-    query.category !== "all"
+    query.sort === "complexity_high" ||
+    query.sort === "complexity_low" ||
+    query.category !== "all" ||
+    query.bias !== "all"
   );
 }
 
@@ -160,6 +178,23 @@ function attachLatestAnalyses(
       ...decision,
       analysis_category: analysis?.category ?? null,
       analysis_confidence: analysis?.confidence ?? null,
+      analysis_bias_count: null,
+    };
+  });
+}
+
+function attachLatestAnalysesWithBiases(
+  decisions: DecisionRow[],
+  analysesByDecisionId: Map<string, AnalysisSummary>
+): DecisionListItem[] {
+  return decisions.map((decision) => {
+    const analysis = analysesByDecisionId.get(decision.id);
+
+    return {
+      ...decision,
+      analysis_category: analysis?.category ?? null,
+      analysis_confidence: analysis?.confidence ?? null,
+      analysis_bias_count: analysis?.biases.length ?? null,
     };
   });
 }
@@ -177,6 +212,30 @@ function filterByCategory(
   );
 }
 
+function filterByBias(
+  decisions: DecisionListItem[],
+  biasFilter: string,
+  analysesByDecisionId: Map<string, AnalysisSummary>
+) {
+  if (biasFilter === "all") {
+    return decisions;
+  }
+
+  return decisions.filter((decision) => {
+    const analysis = analysesByDecisionId.get(decision.id);
+
+    if (!analysis) {
+      return false;
+    }
+
+    return analysis.biases.some((bias) => normalizeBias(bias)?.key === biasFilter);
+  });
+}
+
+function compareByCreatedAtDesc(a: DecisionListItem, b: DecisionListItem) {
+  return b.created_at.localeCompare(a.created_at);
+}
+
 function sortDecisions(
   decisions: DecisionListItem[],
   sort: DecisionSortOption
@@ -191,18 +250,42 @@ function sortDecisions(
         const scoreDiff =
           (b.analysis_confidence ?? -1) - (a.analysis_confidence ?? -1);
 
-        return scoreDiff !== 0
-          ? scoreDiff
-          : b.created_at.localeCompare(a.created_at);
+        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
       });
     case "confidence_low":
       return sorted.sort((a, b) => {
         const scoreDiff =
           (a.analysis_confidence ?? 101) - (b.analysis_confidence ?? 101);
 
-        return scoreDiff !== 0
-          ? scoreDiff
-          : b.created_at.localeCompare(a.created_at);
+        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
+      });
+    case "complexity_high":
+      return sorted.sort((a, b) => {
+        const scoreDiff =
+          (getDecisionComplexityScore(
+            b.analysis_confidence,
+            b.analysis_bias_count
+          ) ?? -1) -
+          (getDecisionComplexityScore(
+            a.analysis_confidence,
+            a.analysis_bias_count
+          ) ?? -1);
+
+        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
+      });
+    case "complexity_low":
+      return sorted.sort((a, b) => {
+        const scoreDiff =
+          (getDecisionComplexityScore(
+            a.analysis_confidence,
+            a.analysis_bias_count
+          ) ?? 101) -
+          (getDecisionComplexityScore(
+            b.analysis_confidence,
+            b.analysis_bias_count
+          ) ?? 101);
+
+        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
       });
     case "title_asc":
       return sorted.sort((a, b) => a.title.localeCompare(b.title));
@@ -210,7 +293,7 @@ function sortDecisions(
       return sorted.sort((a, b) => b.title.localeCompare(a.title));
     case "newest":
     default:
-      return sorted.sort((a, b) => b.created_at.localeCompare(a.created_at));
+      return sorted.sort(compareByCreatedAtDesc);
   }
 }
 
@@ -258,12 +341,13 @@ async function getDecisionsWithAnalysisQuery(
   query: DecisionListQuery
 ): Promise<PaginatedDecisions> {
   const decisions = await fetchDecisionRows(userId, query);
-  const analysesByDecisionId = await getLatestAnalysesByDecisionIds(
+  const analysesByDecisionId = await getLatestAnalysesWithBiasesByDecisionIds(
     decisions.map((decision) => decision.id)
   );
 
-  const enriched = attachLatestAnalyses(decisions, analysesByDecisionId);
-  const filtered = filterByCategory(enriched, query.category);
+  const enriched = attachLatestAnalysesWithBiases(decisions, analysesByDecisionId);
+  const filteredByCategory = filterByCategory(enriched, query.category);
+  const filtered = filterByBias(filteredByCategory, query.bias, analysesByDecisionId);
   const sorted = sortDecisions(filtered, query.sort);
   const paginated = paginateDecisions(sorted, page, pageSize);
 
@@ -348,6 +432,23 @@ export async function getDecisionsByUserIdPaginated(
   }
 
   return getDecisionsWithSqlPagination(userId, page, pageSize, query);
+}
+
+export async function getDecisionBiasFilterOptions(
+  userId: string
+): Promise<DecisionBiasFilterOption[]> {
+  const decisions = await fetchDecisionRows(userId, DEFAULT_DECISION_LIST_QUERY);
+  const analysesByDecisionId = await getLatestAnalysesWithBiasesByDecisionIds(
+    decisions.map((decision) => decision.id)
+  );
+
+  const biases: string[] = [];
+
+  for (const analysis of analysesByDecisionId.values()) {
+    biases.push(...analysis.biases);
+  }
+
+  return countBiasFrequencies(biases);
 }
 
 export async function getDecisionSupportStats(

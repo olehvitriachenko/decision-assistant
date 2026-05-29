@@ -18,4 +18,5 @@ export type DecisionListItem = {
   created_at: string;
   analysis_category: string | null;
   analysis_confidence: number | null;
+  analysis_bias_count: number | null;
 };
