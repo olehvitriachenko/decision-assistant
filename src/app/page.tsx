@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Sparkles } from "lucide-react";
 
 import { routes } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
+import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,24 +22,37 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle>Decision Assistant</CardTitle>
-          <CardDescription>
-            Capture decisions, track their status, and get AI-powered analysis
-            when you are ready.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild className="flex-1">
-            <Link href={routes.login}>Sign in</Link>
-          </Button>
-          <Button asChild variant="outline" className="flex-1">
-            <Link href={routes.register}>Create account</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <PageContainer className="max-w-2xl justify-center py-16 sm:py-24">
+      <div className="space-y-8 text-center">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-border/60 bg-muted/30">
+          <Sparkles className="size-6" aria-hidden="true" />
+        </div>
+        <div className="space-y-3">
+          <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            Make better decisions with AI
+          </h1>
+          <p className="mx-auto max-w-lg text-base text-muted-foreground text-pretty">
+            Capture choices, uncover cognitive biases, and explore alternatives
+            you might have missed.
+          </p>
+        </div>
+        <Card className="border-border/60 bg-card/80 text-left backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>Get started</CardTitle>
+            <CardDescription>
+              Create an account or sign in to analyze your first decision.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild className="flex-1">
+              <Link href={routes.login}>Sign in</Link>
+            </Button>
+            <Button asChild variant="outline" className="flex-1">
+              <Link href={routes.register}>Create account</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </PageContainer>
   );
 }

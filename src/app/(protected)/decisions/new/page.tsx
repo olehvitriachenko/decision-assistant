@@ -1,9 +1,16 @@
 import { DecisionForm } from "@/components/decisions/decision-form";
+import { PageContainer } from "@/components/layout/page-container";
 
 export default function NewDecisionPage() {
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 px-4 py-12">
+    <PageContainer className="max-w-2xl">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-semibold tracking-tight">New Decision</h1>
+        <p className="text-sm text-muted-foreground">
+          Describe your situation and we&apos;ll analyze it with AI.
+        </p>
+      </div>
       <DecisionForm />
-    </div>
+    </PageContainer>
   );
 }

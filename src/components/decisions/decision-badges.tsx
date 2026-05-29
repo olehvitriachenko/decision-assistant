@@ -9,7 +9,7 @@ const statusLabels: Record<DecisionStatus, string> = {
 
 const statusVariants: Record<
   DecisionStatus,
-  "default" | "secondary" | "destructive"
+  "default" | "secondary" | "destructive" | "outline"
 > = {
   processing: "secondary",
   completed: "default",
@@ -20,4 +20,19 @@ export function DecisionStatusBadge({ status }: { status: DecisionStatus }) {
   return (
     <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>
   );
+}
+
+export function CategoryBadge({ category }: { category: string }) {
+  return (
+    <Badge variant="outline" className="capitalize">
+      {category}
+    </Badge>
+  );
+}
+
+export function ConfidenceBadge({ confidence }: { confidence: number }) {
+  const variant =
+    confidence >= 70 ? "default" : confidence >= 40 ? "secondary" : "outline";
+
+  return <Badge variant={variant}>{confidence}% confidence</Badge>;
 }

@@ -3,17 +3,14 @@ import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
 import { signOut } from "@/lib/actions/auth";
-import { getDecisionsByUserId } from "@/lib/db/decisions";
+import { getDecisionsByUserIdPaginated } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
 import { DecisionsList } from "@/components/decisions/decisions-list";
+import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
+const DASHBOARD_PREVIEW_LIMIT = 3;
 
 export default async function DashboardPage() {
   const user = await getUser();
@@ -22,38 +19,50 @@ export default async function DashboardPage() {
     redirect(routes.login);
   }
 
-  const decisions = await getDecisionsByUserId(user.id);
+  const { decisions, total } = await getDecisionsByUserIdPaginated(
+    user.id,
+    1,
+    DASHBOARD_PREVIEW_LIMIT
+  );
+
+  const showViewAll = total > DASHBOARD_PREVIEW_LIMIT;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-12">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <CardTitle>Dashboard</CardTitle>
-              <CardDescription>
-                Signed in as{" "}
-                <span className="font-medium text-foreground">{user.email}</span>
-              </CardDescription>
-            </div>
-            <Button asChild>
-              <Link href={routes.decisionsNew}>New Decision</Link>
+    <PageContainer>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Signed in as{" "}
+            <span className="font-medium text-foreground">{user.email}</span>
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {total} {total === 1 ? "decision" : "decisions"}
+        </p>
+      </div>
+
+      <section className="space-y-4">
+        <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+          Recent decisions
+        </h2>
+        <DecisionsList decisions={decisions} />
+        {showViewAll ? (
+          <div className="flex justify-center pt-2">
+            <Button asChild variant="outline">
+              <Link href={routes.decisions}>View all decisions</Link>
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <form action={signOut}>
-            <Button type="submit" variant="outline">
-              Log out
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Your decisions</h2>
-        <DecisionsList decisions={decisions} />
+        ) : null}
       </section>
-    </div>
+
+      <Separator />
+
+      <form action={signOut}>
+        <Button type="submit" variant="ghost" size="sm">
+          Log out
+        </Button>
+      </form>
+    </PageContainer>
   );
 }

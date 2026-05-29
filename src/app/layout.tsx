@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+
+import { AppHeader } from "@/components/layout/app-header";
+import { ThemeProvider } from "@/components/theme-provider";
+
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -25,9 +25,26 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="relative flex min-h-screen flex-col">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.97_0_0)_0%,transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,oklch(0.22_0.02_264)_0%,transparent_55%)]"
+            />
+            <AppHeader />
+            <main className="relative flex flex-1 flex-col">{children}</main>
+          </div>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

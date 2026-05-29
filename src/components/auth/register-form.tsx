@@ -23,7 +23,7 @@ export function RegisterForm() {
   const [state, formAction, isPending] = useActionState(signUp, initialState);
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
         <CardDescription>

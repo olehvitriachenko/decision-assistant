@@ -25,3 +25,15 @@ export const createDecisionSchema = z.object({
 });
 
 export type CreateDecisionInput = z.infer<typeof createDecisionSchema>;
+
+export function isCreateDecisionFormFilled(input: {
+  title: string;
+  situation: string;
+  decision: string;
+}) {
+  return (
+    input.title.trim().length >= 1 &&
+    input.situation.trim().length >= 1 &&
+    input.decision.trim().length >= 1
+  );
+}
