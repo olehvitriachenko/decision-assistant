@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
 
   return (
     <>
-      <AppHeader />
+      <AppHeader userEmail={user.email ?? ""} />
       {children}
     </>
   );

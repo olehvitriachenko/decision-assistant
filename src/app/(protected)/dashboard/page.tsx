@@ -2,14 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
-import { signOut } from "@/lib/actions/auth";
 import { getDecisionsByUserIdPaginated } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
 import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 const DASHBOARD_PREVIEW_LIMIT = 3;
 
@@ -60,14 +58,6 @@ export default async function DashboardPage() {
           </div>
         ) : null}
       </section>
-
-      <Separator />
-
-      <form action={signOut}>
-        <Button type="submit" variant="ghost" size="sm">
-          Log out
-        </Button>
-      </form>
     </PageContainer>
   );
 }

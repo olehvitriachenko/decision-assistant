@@ -7,6 +7,7 @@ import { LayoutDashboard, List, Menu, Plus, Sparkles } from "lucide-react";
 import { routes } from "@/lib/config/routes";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -37,7 +38,7 @@ function isActivePath(pathname: string, href: string) {
   return false;
 }
 
-export function AppHeader() {
+export function AppHeader({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
 
   return (
@@ -86,6 +87,8 @@ export function AppHeader() {
               New Decision
             </Link>
           </Button>
+
+          <UserMenu email={userEmail} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
