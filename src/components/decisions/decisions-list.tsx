@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowRight, Inbox, Plus } from "lucide-react";
 
 import { decisionDetailPath, routes } from "@/lib/config/routes";
+import { formatDateTime } from "@/lib/i18n/format";
+import { m } from "@/lib/i18n/uk";
 import type { DecisionListItem } from "@/lib/types/decision";
 import {
   CategoryBadge,
@@ -16,13 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-function formatCreatedAt(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 function DecisionListBadges({ decision }: { decision: DecisionListItem }) {
   const showStatus = decision.status !== "completed";
@@ -66,18 +61,20 @@ export function DecisionsList({
             <Inbox className="size-5 text-muted-foreground" aria-hidden="true" />
           </span>
           <CardTitle className="mt-4">
-            {hasActiveFilters ? "No matching decisions" : "No decisions yet"}
+            {hasActiveFilters
+              ? m.decisions.list.emptyFilteredTitle
+              : m.decisions.list.emptyTitle}
           </CardTitle>
           <CardDescription className="mt-2 max-w-sm text-balance">
             {hasActiveFilters
-              ? "Try adjusting your sort or filter settings to see more results."
-              : "Start your first decision analysis. AI will help you spot biases and alternatives you might have missed."}
+              ? m.decisions.list.emptyFilteredDescription
+              : m.decisions.list.emptyDescription}
           </CardDescription>
           {!hasActiveFilters ? (
             <Button asChild className="mt-6">
               <Link href={routes.decisionsNew}>
                 <Plus className="size-4" aria-hidden="true" />
-                New Decision
+                {m.nav.newDecision}
               </Link>
             </Button>
           ) : null}
@@ -105,7 +102,9 @@ export function DecisionsList({
                     {decision.title}
                   </CardTitle>
                   <CardDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span>Created {formatCreatedAt(decision.created_at)}</span>
+                    <span>
+                      {m.common.createdAt(formatDateTime(decision.created_at))}
+                    </span>
                     {decision.status === "completed" ? (
                       <>
                         <span className="text-muted-foreground/40" aria-hidden="true">
@@ -119,7 +118,7 @@ export function DecisionsList({
                 <DecisionListBadges decision={decision} />
               </div>
               <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-                View details
+                {m.decisions.list.viewDetails}
                 <ArrowRight className="size-3.5" aria-hidden="true" />
               </div>
             </CardHeader>

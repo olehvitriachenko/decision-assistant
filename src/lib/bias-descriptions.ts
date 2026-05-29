@@ -7,89 +7,99 @@ export type BiasDescription = {
 
 const biasDescriptions: Record<string, BiasDescription> = {
   fomo: {
-    title: "Fear of Missing Out",
+    title: "Страх втратити можливість (FOMO)",
     description:
-      "You may be feeling pressure to act quickly because you fear missing an opportunity.",
+      "Можливо, ви відчуваєте тиск діяти швидко через страх упустити можливість.",
   },
   "status quo bias": {
-    title: "Status Quo Bias",
+    title: "Упередження статус-кво",
     description:
-      "You may prefer your current situation simply because it is familiar.",
+      "Можливо, ви віддаєте перевагу поточній ситуації лише тому, що вона звична.",
   },
   "overconfidence bias": {
-    title: "Overconfidence Bias",
+    title: "Упередження надмірної впевненості",
     description:
-      "You may be overestimating your ability to predict the outcome.",
+      "Можливо, ви переоцінюєте свою здатність передбачити результат.",
   },
   "confirmation bias": {
-    title: "Confirmation Bias",
+    title: "Підтверджувальне упередження",
     description:
-      "You may be favoring information that supports what you already believe.",
+      "Можливо, ви надаєте перевагу інформації, що підтверджує ваші переконання.",
   },
   "sunk cost fallacy": {
-    title: "Sunk Cost Fallacy",
+    title: "Помилка невідновлюваних витрат",
     description:
-      "You may be continuing a path because of what you have already invested.",
+      "Можливо, ви продовжуєте обраний шлях через те, що вже інвестували.",
   },
   "anchoring bias": {
-    title: "Anchoring Bias",
+    title: "Якірне упередження",
     description:
-      "You may be relying too heavily on the first piece of information you received.",
+      "Можливо, ви надто сильно спираєтесь на першу отриману інформацію.",
   },
   "availability heuristic": {
-    title: "Availability Heuristic",
+    title: "Евристика доступності",
     description:
-      "You may be judging likelihood based on examples that come to mind most easily.",
+      "Можливо, ви оцінюєте ймовірність за прикладами, що найлегше згадуються.",
   },
   "recency bias": {
-    title: "Recency Bias",
+    title: "Упередження недавності",
     description:
-      "You may be giving too much weight to the most recent events or information.",
+      "Можливо, ви надмірно зважаєте на найновіші події чи інформацію.",
   },
   "loss aversion": {
-    title: "Loss Aversion",
+    title: "Неприйняття втрат",
     description:
-      "You may be avoiding action because potential losses feel more painful than gains.",
+      "Можливо, ви уникаєте дій, бо потенційні втрати здаються болючішими за виграші.",
   },
   "optimism bias": {
-    title: "Optimism Bias",
+    title: "Оптимістичне упередження",
     description:
-      "You may be expecting a better outcome than the available evidence supports.",
+      "Можливо, ви очікуєте кращий результат, ніж це підтверджують наявні дані.",
   },
   "pessimism bias": {
-    title: "Pessimism Bias",
+    title: "Песимістичне упередження",
     description:
-      "You may be expecting a worse outcome than the available evidence supports.",
+      "Можливо, ви очікуєте гірший результат, ніж це підтверджують наявні дані.",
   },
   "hindsight bias": {
-    title: "Hindsight Bias",
+    title: "Упередження задним числом",
     description:
-      "You may be treating past events as if they were more predictable than they were.",
+      "Можливо, ви сприймаєте минулі події так, ніби їх було легше передбачити.",
   },
   "bandwagon effect": {
-    title: "Bandwagon Effect",
+    title: "Ефект натовпу",
     description:
-      "You may be leaning toward a choice because others seem to be doing the same.",
+      "Можливо, ви схиляєтесь до вибору, бо інші роблять те саме.",
   },
   "negativity bias": {
-    title: "Negativity Bias",
+    title: "Негативне упередження",
     description:
-      "You may be focusing more on risks and downsides than on balanced trade-offs.",
+      "Можливо, ви більше зосереджуєтесь на ризиках, ніж на збалансованих компромісах.",
   },
   "self-serving bias": {
-    title: "Self-Serving Bias",
+    title: "Егоцентричне упередження",
     description:
-      "You may be attributing success to yourself and setbacks to external factors.",
+      "Можливо, ви приписуєте успіх собі, а невдачі — зовнішнім факторам.",
   },
   "planning fallacy": {
-    title: "Planning Fallacy",
+    title: "Планувальна помилка",
     description:
-      "You may be underestimating how long the decision or its consequences will take.",
+      "Можливо, ви недооцінюєте, скільки часу займе рішення або його наслідки.",
   },
   "dunning-kruger effect": {
-    title: "Dunning-Kruger Effect",
+    title: "Ефект Даннінга — Кrugerа",
     description:
-      "You may have less insight into the decision because you underestimate its complexity.",
+      "Можливо, ви менше усвідомлюєте складність рішення, ніж воно є насправді.",
+  },
+  "ambiguity effect": {
+    title: "Ефект неоднозначності",
+    description:
+      "Можливо, ви уникаєте варіантів з невизначеними наслідками, навіть якщо вони кращі.",
+  },
+  "herding bias": {
+    title: "Упередження стадності",
+    description:
+      "Можливо, ви орієнтуєтесь на поведінку інших, а не на власний аналіз ситуації.",
   },
 };
 

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import {
@@ -13,6 +14,8 @@ import {
   getDecisionSupportStats,
   getDecisionsByUserIdPaginated,
 } from "@/lib/db/decisions";
+import { formatDecisionCount } from "@/lib/i18n/format";
+import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
 import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
@@ -83,10 +86,10 @@ export default async function DecisionsPage({
       <DecisionsProcessingWatcher decisionIds={processingDecisionIds} />
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight">
-          All decisions
+          {m.decisions.allTitle}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {result.total} {result.total === 1 ? "decision" : "decisions"} total
+          {m.decisions.totalLabel(formatDecisionCount(result.total))}
         </p>
       </div>
 

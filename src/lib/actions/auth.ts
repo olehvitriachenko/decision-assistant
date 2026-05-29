@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
+import { m } from "@/lib/i18n/uk";
 import { createClient } from "@/lib/supabase/server";
 import { authCredentialsSchema } from "@/lib/validations/auth";
 
@@ -70,8 +71,7 @@ export async function signUp(
 
   if (!data.session) {
     return {
-      error:
-        "Account was created but no session was returned. Disable email confirmation in Supabase Auth settings.",
+      error: m.auth.signUpNoSession,
     };
   }
 

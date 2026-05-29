@@ -19,6 +19,7 @@ import {
 } from "@/lib/db/decisions";
 import { analyzeDecision } from "@/lib/openai/analyze-decision";
 import { routes, decisionDetailPath } from "@/lib/config/routes";
+import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
 import type { Decision, DecisionStatus } from "@/lib/types/decision";
 import { createDecisionSchema } from "@/lib/validations/decision";
@@ -162,7 +163,7 @@ export async function reanalyzeDecision(
   const decision = await getDecisionById(decisionId);
 
   if (!decision || decision.user_id !== user.id) {
-    return { error: "Decision not found." };
+    return { error: m.decisions.errors.notFound };
   }
 
   try {
@@ -172,7 +173,7 @@ export async function reanalyzeDecision(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to start analysis. Please try again.",
+          : m.decisions.errors.analysisStartFailed,
     };
   }
 
@@ -208,7 +209,7 @@ export async function createDecision(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to create decision. Please try again.",
+          : m.decisions.errors.createFailed,
     };
   }
 

@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 import { routes } from "@/lib/config/routes";
+import { m } from "@/lib/i18n/uk";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
 
 export function RouteError({
   error,
   reset,
-  title = "Something went wrong",
-  description = "An unexpected error occurred while loading this page.",
+  title = m.errors.genericTitle,
+  description = m.errors.genericDescription,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
@@ -31,10 +32,10 @@ export function RouteError({
         </div>
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <Button type="button" onClick={reset}>
-            Try again
+            {m.common.tryAgain}
           </Button>
           <Button asChild variant="outline">
-            <Link href={routes.dashboard}>Go to dashboard</Link>
+            <Link href={routes.dashboard}>{m.common.goToDashboard}</Link>
           </Button>
         </div>
       </div>

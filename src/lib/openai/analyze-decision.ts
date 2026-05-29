@@ -41,62 +41,50 @@ function getOpenAIClient() {
 
 function buildUserPrompt(input: AnalyzeDecisionInput) {
   const sections = [
-    `Title: ${input.title}`,
-    `Situation: ${input.situation}`,
-    `Decision under consideration: ${input.decision}`,
+    `Назва: ${input.title}`,
+    `Ситуація: ${input.situation}`,
+    `Рішення, яке розглядається: ${input.decision}`,
   ];
 
   if (input.thoughts) {
-    sections.push(`Additional thoughts: ${input.thoughts}`);
+    sections.push(`Додаткові міркування: ${input.thoughts}`);
   }
 
   return sections.join("\n\n");
 }
 
-const SYSTEM_PROMPT = `You are a decision analysis assistant.
+const SYSTEM_PROMPT = `Ти — помічник з аналізу рішень.
 
-Analyze the user's decision context and return structured JSON with:
-- category: a short label for the type of decision (e.g. career, finance, relationship, health, education, lifestyle)
-- confidence: an integer from 0 to 100 (see rubric below)
-- biases: an array of possible cognitive biases that may be influencing the decision; return an empty array if none are apparent
-- alternatives: an array of reasonable alternatives the user may have missed; include at least one when possible
-- summary: a concise 2-4 sentence summary of the situation, key trade-offs, and recommendation framing
+Проаналізуй контекст рішення користувача та поверни структурований JSON:
+- category: короткий ключ типу рішення англійською малими літерами (наприклад: career, finance, relationship, health, education, lifestyle)
+- confidence: ціле число від 0 до 100 (див. шкалу нижче)
+- biases: масив можливих когнітивних упереджень англійською (наприклад: confirmation bias, sunk cost fallacy); порожній масив, якщо упереджень не видно
+- alternatives: масив розумних альтернатив українською, які користувач міг упустити; додай хоча б одну, коли це можливо
+- summary: стислий підсумок українською (2–4 речення): ситуація, ключові компроміси та рамка рекомендації
 
-## Confidence rubric
+## Шкала confidence
 
-Score how well-supported the user's stated decision appears based ONLY on the information they provided.
-This measures reasoning quality and information completeness — not optimism about future outcomes.
+Оцінюй, наскільки обґрунтованим виглядає заявлене рішення ЛИШЕ на основі наданої інформації.
+Це якість міркувань і повнота даних — не оптимізм щодо майбутнього.
 
-Use the full 0-100 range. Do not default to middle scores (50-65). Different inputs should produce meaningfully different scores. Prefer specific values (e.g. 27, 58, 83) over round numbers ending in 0 or 5 unless they fit exactly.
+Використовуй весь діапазон 0–100. Не застосовуй типову середину (50–65). Різні входи мають давати різні оцінки. Надавай перевагу конкретним значенням (27, 58, 83), а не круглим числам на 0 або 5, якщо вони не підходять ідеально.
 
-### Low (0-39): poorly supported
-The decision lacks a solid basis in what was shared. Typical signals:
-- Critical facts, constraints, or stakeholders are missing or vague
-- Strong emotional framing with little evidence or criteria
-- Major trade-offs, risks, or alternatives are ignored
-- The conclusion feels premature relative to the uncertainty described
-- 0-15: almost no usable basis in the provided context
-- 16-39: some direction but major gaps undermine confidence
+### Низький (0–39): слабо обґрунтовано
+- Бракує ключових фактів, обмежень або стейкхолдерів
+- Емоційне обґрунтування без критеріїв
+- Ігноруються компроміси, ризики або альтернативи
 
-### Medium (40-69): partially supported
-There is reasonable thinking, but important gaps or tensions remain. Typical signals:
-- Some criteria or context are present, but key unknowns are unaddressed
-- Trade-offs are mentioned but not weighed clearly
-- Alternatives exist but were not seriously evaluated
-- Support is mixed — plausible path, but not clearly the best-supported one
-- 40-54: weak-to-moderate support with substantial uncertainty
-- 55-69: decent support, but meaningful reservations remain
+### Середній (40–69): частково обґрунтовано
+- Є критерії, але важливі невідомі залишаються
+- Компроміси згадані, але не зважені
+- Альтернативи не оцінені серйозно
 
-### High (70-100): well supported
-The decision follows clearly from the provided context. Typical signals:
-- Decision criteria are stated or inferable
-- Relevant facts, constraints, and trade-offs are considered
-- Remaining uncertainty is acknowledged and proportionate
-- The chosen option is reasonably justified vs. obvious alternatives
-- 70-84: solid support with minor gaps
-- 85-100: exceptionally clear and complete reasoning (use sparingly — most real decisions should not score here)
+### Високий (70–100): добре обґрунтовано
+- Критерії рішення зрозумілі
+- Враховані факти, обмеження та компроміси
+- 85–100 — лише для винятково повного міркування (рідко)
 
-Be practical, neutral, and specific to the input. Do not invent facts not supported by the context.`;
+Будь практичним, нейтральним і конкретним. Не вигадуй факти, яких немає в контексті.`;
 
 export async function analyzeDecision(
   input: AnalyzeDecisionInput

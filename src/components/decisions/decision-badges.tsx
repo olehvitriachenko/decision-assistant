@@ -1,15 +1,13 @@
 import { Loader2 } from "lucide-react";
 
+import { formatCategoryDisplay } from "@/lib/i18n/format";
+import { m } from "@/lib/i18n/uk";
 import type { DecisionStatus } from "@/lib/types/decision";
 import { classifySupportScore } from "@/lib/support-score";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const statusLabels: Record<DecisionStatus, string> = {
-  processing: "Processing",
-  completed: "Completed",
-  failed: "Failed",
-};
+const statusLabels = m.status;
 
 const statusBadgeClassNames: Record<DecisionStatus, string> = {
   processing:
@@ -61,13 +59,11 @@ export function CategoryBadge({
       variant="outline"
       className={cn(
         badgeAlignClass,
-        size === "md"
-          ? "h-6 px-2.5 text-xs capitalize"
-          : "h-5 capitalize",
+        size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
         "border-border/60 bg-background/60 backdrop-blur-sm"
       )}
     >
-      {category}
+      {formatCategoryDisplay(category)}
     </Badge>
   );
 }

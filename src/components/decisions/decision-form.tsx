@@ -7,6 +7,7 @@ import {
   createDecision,
   type CreateDecisionActionState,
 } from "@/lib/actions/decisions";
+import { m } from "@/lib/i18n/uk";
 import { isCreateDecisionFormFilled } from "@/lib/validations/decision";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,11 +65,8 @@ export function DecisionForm() {
   return (
     <Card className="w-full border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-base">Decision details</CardTitle>
-        <CardDescription>
-          Fill in the context below. After saving, AI analysis will run in the
-          background while you review the decision page.
-        </CardDescription>
+        <CardTitle className="text-base">{m.decisions.form.title}</CardTitle>
+        <CardDescription>{m.decisions.form.description}</CardDescription>
       </CardHeader>
 
       <form action={formAction} className="space-y-0">
@@ -81,7 +79,7 @@ export function DecisionForm() {
 
           <fieldset className="space-y-6" disabled={isPending}>
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">{m.decisions.form.fieldTitle}</Label>
               <Input
                 id="title"
                 name="title"
@@ -92,12 +90,12 @@ export function DecisionForm() {
                     title: event.target.value,
                   }))
                 }
-                placeholder="Should I accept the startup job offer?"
+                placeholder={m.decisions.form.fieldTitlePlaceholder}
                 aria-invalid={Boolean(state.fieldErrors?.title)}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                A short name to find this decision later.
+                {m.decisions.form.fieldTitleHelp}
               </p>
               {state.fieldErrors?.title?.map((message) => (
                 <p key={message} className="text-sm text-destructive">
@@ -107,7 +105,7 @@ export function DecisionForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="situation">Situation</Label>
+              <Label htmlFor="situation">{m.decisions.form.fieldSituation}</Label>
               <Textarea
                 id="situation"
                 name="situation"
@@ -118,7 +116,7 @@ export function DecisionForm() {
                     situation: event.target.value,
                   }))
                 }
-                placeholder="Describe the context, constraints, and what is at stake..."
+                placeholder={m.decisions.form.fieldSituationPlaceholder}
                 className="min-h-32"
                 aria-invalid={Boolean(state.fieldErrors?.situation)}
                 required
@@ -131,7 +129,7 @@ export function DecisionForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="decision">Decision</Label>
+              <Label htmlFor="decision">{m.decisions.form.fieldDecision}</Label>
               <Textarea
                 id="decision"
                 name="decision"
@@ -142,7 +140,7 @@ export function DecisionForm() {
                     decision: event.target.value,
                   }))
                 }
-                placeholder="What choice are you considering?"
+                placeholder={m.decisions.form.fieldDecisionPlaceholder}
                 className="min-h-24"
                 aria-invalid={Boolean(state.fieldErrors?.decision)}
                 required
@@ -155,7 +153,7 @@ export function DecisionForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="thoughts">Thoughts (optional)</Label>
+              <Label htmlFor="thoughts">{m.decisions.form.fieldThoughts}</Label>
               <Textarea
                 id="thoughts"
                 name="thoughts"
@@ -166,7 +164,7 @@ export function DecisionForm() {
                     thoughts: event.target.value,
                   }))
                 }
-                placeholder="Goals, concerns, or anything else the AI should consider..."
+                placeholder={m.decisions.form.fieldThoughtsPlaceholder}
                 className="min-h-24"
                 aria-invalid={Boolean(state.fieldErrors?.thoughts)}
               />
@@ -191,7 +189,7 @@ export function DecisionForm() {
             ) : (
               <Sparkles className="size-4" aria-hidden="true" />
             )}
-            {isPending ? "Saving decision..." : "Create & analyze"}
+            {isPending ? m.decisions.form.saving : m.decisions.form.submit}
           </Button>
         </CardFooter>
       </form>

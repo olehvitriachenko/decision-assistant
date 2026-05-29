@@ -5,6 +5,7 @@ import { useActionState } from "react";
 
 import { routes } from "@/lib/config/routes";
 import { signUp, type AuthActionState } from "@/lib/actions/auth";
+import { m } from "@/lib/i18n/uk";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,10 +26,8 @@ export function RegisterForm() {
   return (
     <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader className="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
-        <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Sign up with your email and password to get started.
-        </CardDescription>
+        <CardTitle>{m.auth.createAccount}</CardTitle>
+        <CardDescription>{m.auth.createAccountDescription}</CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-5 px-6 sm:px-8">
@@ -39,7 +38,7 @@ export function RegisterForm() {
           ) : null}
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{m.common.email}</Label>
             <Input
               id="email"
               name="email"
@@ -57,7 +56,7 @@ export function RegisterForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{m.common.password}</Label>
             <Input
               id="password"
               name="password"
@@ -76,12 +75,12 @@ export function RegisterForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-5 border-t-0 bg-transparent px-6 pt-2 pb-6 sm:px-8 sm:pb-8">
           <Button type="submit" className="h-10 w-full" disabled={isPending}>
-            {isPending ? "Creating account..." : "Create account"}
+            {isPending ? m.auth.creatingAccount : m.auth.createAccount}
           </Button>
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {m.auth.hasAccount}{" "}
             <Link href={routes.login} className="text-primary underline-offset-4 hover:underline">
-              Sign in
+              {m.auth.signIn}
             </Link>
           </p>
         </CardFooter>

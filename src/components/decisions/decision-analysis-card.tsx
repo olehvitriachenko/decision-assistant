@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { reanalyzeDecision } from "@/lib/actions/decisions";
+import { m } from "@/lib/i18n/uk";
 import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
 import {
@@ -52,9 +53,11 @@ export function DecisionAnalysisCard({
     return (
       <Card className="border-destructive/30 bg-destructive/5">
         <CardHeader>
-          <CardTitle className="text-base">Analysis unavailable</CardTitle>
+          <CardTitle className="text-base">
+            {m.decisions.analysis.unavailableTitle}
+          </CardTitle>
           <CardDescription>
-            The AI analysis could not be completed for this decision.
+            {m.decisions.analysis.unavailableDescription}
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex-col items-stretch gap-3 border-t border-border/60">
@@ -71,7 +74,7 @@ export function DecisionAnalysisCard({
             onClick={handleReanalyze}
           >
             <RefreshCw className="size-4" aria-hidden="true" />
-            {isPending ? "Starting analysis..." : "Retry analysis"}
+            {isPending ? m.decisions.analysis.starting : m.decisions.analysis.retry}
           </Button>
         </CardFooter>
       </Card>
@@ -90,16 +93,14 @@ export function DecisionAnalysisCard({
           <SupportScoreBadge confidence={analysis.confidence} />
         </div>
         <div className="space-y-1">
-          <CardTitle className="text-xl">AI Analysis</CardTitle>
-          <CardDescription>
-            Insights generated from your decision context.
-          </CardDescription>
+          <CardTitle className="text-xl">{m.decisions.analysis.title}</CardTitle>
+          <CardDescription>{m.decisions.analysis.description}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="space-y-8">
         <div className="space-y-2">
           <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Summary
+            {m.decisions.analysis.summary}
           </h3>
           <p className="text-base leading-relaxed text-pretty">
             {analysis.summary}
@@ -108,20 +109,20 @@ export function DecisionAnalysisCard({
 
         <div className="space-y-3">
           <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Possible biases
+            {m.decisions.analysis.biases}
           </h3>
           {analysis.biases.length > 0 ? (
             <BiasInsightsList biases={analysis.biases} />
           ) : (
             <p className="text-sm text-muted-foreground">
-              No notable biases identified.
+              {m.decisions.analysis.noBiases}
             </p>
           )}
         </div>
 
         <div className="space-y-3">
           <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Missed alternatives
+            {m.decisions.analysis.alternatives}
           </h3>
           {analysis.alternatives.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2">
@@ -137,7 +138,7 @@ export function DecisionAnalysisCard({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No alternatives identified.
+              {m.decisions.analysis.noAlternatives}
             </p>
           )}
         </div>
@@ -156,7 +157,7 @@ export function DecisionAnalysisCard({
           onClick={handleReanalyze}
         >
           <RefreshCw className="size-4" aria-hidden="true" />
-          {isPending ? "Starting analysis..." : "Re-analyze"}
+          {isPending ? m.decisions.analysis.starting : m.decisions.analysis.reanalyze}
         </Button>
       </CardFooter>
     </Card>

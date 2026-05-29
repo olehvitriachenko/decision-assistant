@@ -1,4 +1,5 @@
 import { routes } from "@/lib/config/routes";
+import { m } from "@/lib/i18n/uk";
 import type { DecisionStatus } from "@/lib/types/decision";
 
 export const decisionSortOptions = [
@@ -16,16 +17,7 @@ export type DecisionSortOption = (typeof decisionSortOptions)[number];
 
 export const DEFAULT_DECISION_SORT: DecisionSortOption = "newest";
 
-export const decisionSortLabels: Record<DecisionSortOption, string> = {
-  newest: "Newest First",
-  oldest: "Oldest First",
-  confidence_high: "Highest Support Score",
-  confidence_low: "Lowest Support Score",
-  complexity_high: "Highest Complexity",
-  complexity_low: "Lowest Complexity",
-  title_asc: "Title A → Z",
-  title_desc: "Title Z → A",
-};
+export const decisionSortLabels = m.config.sort;
 
 export const decisionStatusFilterOptions = [
   "all",
@@ -39,15 +31,7 @@ export type DecisionStatusFilter =
 
 export const DEFAULT_DECISION_STATUS_FILTER: DecisionStatusFilter = "all";
 
-export const decisionStatusFilterLabels: Record<
-  DecisionStatusFilter,
-  string
-> = {
-  all: "All",
-  completed: "Completed",
-  processing: "Processing",
-  failed: "Failed",
-};
+export const decisionStatusFilterLabels = m.config.statusFilter;
 
 export const decisionCategoryFilterOptions = [
   "all",
@@ -63,16 +47,13 @@ export type DecisionCategoryFilter =
 
 export const DEFAULT_DECISION_CATEGORY_FILTER: DecisionCategoryFilter = "all";
 
-export const decisionCategoryFilterLabels: Record<
-  DecisionCategoryFilter,
-  string
-> = {
-  all: "All Categories",
-  career: "Career",
-  finance: "Finance",
-  health: "Health",
-  education: "Education",
-  lifestyle: "Lifestyle",
+export const decisionCategoryFilterLabels = {
+  all: m.config.category.all,
+  career: m.config.category.career,
+  finance: m.config.category.finance,
+  health: m.config.category.health,
+  education: m.config.category.education,
+  lifestyle: m.config.category.lifestyle,
 };
 
 export type DecisionListQuery = {
@@ -195,7 +176,7 @@ export function getBiasFilterLabel(
   options: Array<{ key: string; label: string }>
 ) {
   if (biasKey === DEFAULT_DECISION_BIAS_FILTER) {
-    return "All Biases";
+    return m.config.allBiases;
   }
 
   return (

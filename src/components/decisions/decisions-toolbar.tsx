@@ -23,6 +23,7 @@ import {
   hasActiveDecisionListFilters,
 } from "@/lib/config/decision-list-params";
 import type { DecisionBiasFilterOption } from "@/lib/db/decisions";
+import { m } from "@/lib/i18n/uk";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -103,7 +104,7 @@ export function DecisionsToolbar({
     <div className="space-y-4 rounded-xl border border-border/60 bg-card/50 p-4">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-2">
-          <Label htmlFor="decisions-sort">Sort by</Label>
+          <Label htmlFor="decisions-sort">{m.decisions.toolbar.sortBy}</Label>
           <Select
             value={query.sort}
             onValueChange={(value) =>
@@ -124,7 +125,7 @@ export function DecisionsToolbar({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="decisions-status">Status</Label>
+          <Label htmlFor="decisions-status">{m.decisions.toolbar.status}</Label>
           <Select
             value={query.status}
             onValueChange={(value) =>
@@ -145,7 +146,7 @@ export function DecisionsToolbar({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="decisions-category">Category</Label>
+          <Label htmlFor="decisions-category">{m.decisions.toolbar.category}</Label>
           <Select
             value={query.category}
             onValueChange={(value) =>
@@ -166,7 +167,7 @@ export function DecisionsToolbar({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="decisions-bias">Bias</Label>
+          <Label htmlFor="decisions-bias">{m.decisions.toolbar.bias}</Label>
           <Select
             value={
               selectedBiasIsAvailable ? query.bias : DEFAULT_DECISION_BIAS_FILTER
@@ -178,7 +179,7 @@ export function DecisionsToolbar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={DEFAULT_DECISION_BIAS_FILTER}>
-                All Biases
+                {m.decisions.toolbar.allBiases}
               </SelectItem>
               {biasOptions.map((option) => (
                 <SelectItem key={option.key} value={option.key}>
@@ -194,31 +195,34 @@ export function DecisionsToolbar({
         <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <span className="shrink-0 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Active filters
+              {m.decisions.toolbar.activeFilters}
             </span>
             {query.sort !== DEFAULT_DECISION_SORT ? (
               <Badge variant="secondary">
-                Sort: {decisionSortLabels[query.sort]}
+                {m.decisions.toolbar.sortPrefix} {decisionSortLabels[query.sort]}
               </Badge>
             ) : null}
             {query.status !== DEFAULT_DECISION_STATUS_FILTER ? (
               <Badge variant="secondary">
-                Status: {decisionStatusFilterLabels[query.status]}
+                {m.decisions.toolbar.statusPrefix}{" "}
+                {decisionStatusFilterLabels[query.status]}
               </Badge>
             ) : null}
             {query.category !== DEFAULT_DECISION_CATEGORY_FILTER ? (
               <Badge variant="secondary">
-                Category: {decisionCategoryFilterLabels[query.category]}
+                {m.decisions.toolbar.categoryPrefix}{" "}
+                {decisionCategoryFilterLabels[query.category]}
               </Badge>
             ) : null}
             {query.bias !== DEFAULT_DECISION_BIAS_FILTER ? (
               <Badge variant="secondary">
-                Bias: {getBiasFilterLabel(query.bias, biasOptions)}
+                {m.decisions.toolbar.biasPrefix}{" "}
+                {getBiasFilterLabel(query.bias, biasOptions)}
               </Badge>
             ) : null}
           </div>
           <Button asChild variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-            <Link href={decisionsListHref()}>Clear filters</Link>
+            <Link href={decisionsListHref()}>{m.decisions.toolbar.clearFilters}</Link>
           </Button>
         </div>
       ) : null}

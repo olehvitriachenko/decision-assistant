@@ -1,13 +1,14 @@
 import { BarChart3, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 
 import type { DecisionSupportStats } from "@/lib/db/decisions";
+import { m } from "@/lib/i18n/uk";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const statCards = [
   {
     key: "total",
-    label: "Total Decisions",
+    label: m.decisions.stats.total,
     icon: BarChart3,
     accent: "from-primary/10 to-transparent",
     iconClass: "text-foreground",
@@ -15,7 +16,7 @@ const statCards = [
   },
   {
     key: "highSupport",
-    label: "High Support",
+    label: m.decisions.stats.highSupport,
     icon: ShieldCheck,
     accent: "from-emerald-500/10 to-transparent",
     iconClass: "text-emerald-600 dark:text-emerald-400",
@@ -23,7 +24,7 @@ const statCards = [
   },
   {
     key: "mediumSupport",
-    label: "Medium Support",
+    label: m.decisions.stats.mediumSupport,
     icon: ShieldQuestion,
     accent: "from-amber-500/10 to-transparent",
     iconClass: "text-amber-600 dark:text-amber-400",
@@ -31,7 +32,7 @@ const statCards = [
   },
   {
     key: "lowSupport",
-    label: "Low Support",
+    label: m.decisions.stats.lowSupport,
     icon: ShieldAlert,
     accent: "from-destructive/10 to-transparent",
     iconClass: "text-destructive",

@@ -8,6 +8,7 @@ import {
   signInWithPassword,
   type AuthActionState,
 } from "@/lib/actions/auth";
+import { m } from "@/lib/i18n/uk";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,10 +32,8 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader className="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>
-          Enter your email and password to access your dashboard.
-        </CardDescription>
+        <CardTitle>{m.auth.signIn}</CardTitle>
+        <CardDescription>{m.auth.signInDescription}</CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-5 px-6 sm:px-8">
@@ -45,7 +44,7 @@ export function LoginForm() {
           ) : null}
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{m.common.email}</Label>
             <Input
               id="email"
               name="email"
@@ -63,7 +62,7 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{m.common.password}</Label>
             <Input
               id="password"
               name="password"
@@ -82,12 +81,12 @@ export function LoginForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-5 border-t-0 bg-transparent px-6 pt-2 pb-6 sm:px-8 sm:pb-8">
           <Button type="submit" className="h-10 w-full" disabled={isPending}>
-            {isPending ? "Signing in..." : "Sign in"}
+            {isPending ? m.auth.signingIn : m.auth.signIn}
           </Button>
           <p className="text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            {m.auth.noAccount}{" "}
             <Link href={routes.register} className="text-primary underline-offset-4 hover:underline">
-              Create one
+              {m.auth.createOne}
             </Link>
           </p>
         </CardFooter>

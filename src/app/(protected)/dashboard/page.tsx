@@ -6,6 +6,8 @@ import {
   getDecisionDashboardInsights,
   getDecisionsByUserIdPaginated,
 } from "@/lib/db/decisions";
+import { formatDecisionCount } from "@/lib/i18n/format";
+import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
 import { DashboardInsights } from "@/components/dashboard/dashboard-insights";
 import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
@@ -37,13 +39,15 @@ export default async function DashboardPage() {
       <DecisionsProcessingWatcher decisionIds={processingDecisionIds} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">Welcome back</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {m.dashboard.welcome}
+          </h1>
           {user.email ? (
             <p className="text-xs text-muted-foreground">{user.email}</p>
           ) : null}
         </div>
         <p className="text-sm text-muted-foreground">
-          {total} {total === 1 ? "decision" : "decisions"}
+          {formatDecisionCount(total)}
         </p>
       </div>
 
@@ -51,13 +55,13 @@ export default async function DashboardPage() {
 
       <section className="space-y-4">
         <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-          Recent decisions
+          {m.dashboard.recentDecisions}
         </h2>
         <DecisionsList decisions={decisions} />
         {showViewAll ? (
           <div className="flex justify-center pt-2">
             <Button asChild variant="outline">
-              <Link href={routes.decisions}>View all decisions</Link>
+              <Link href={routes.decisions}>{m.dashboard.viewAllDecisions}</Link>
             </Button>
           </div>
         ) : null}

@@ -5,6 +5,7 @@ import {
   decisionsListHref,
   type DecisionListQuery,
 } from "@/lib/config/decision-list-params";
+import { m } from "@/lib/i18n/uk";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -28,10 +29,10 @@ export function DecisionsPagination({
   return (
     <nav
       className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-      aria-label="Decisions pagination"
+      aria-label={m.decisions.pagination.ariaLabel}
     >
       <p className="text-sm text-muted-foreground">
-        Page {page} of {totalPages} · {total} total
+        {m.decisions.pagination.pageInfo(page, totalPages, total)}
       </p>
 
       <div className="flex flex-wrap items-center gap-1.5">
@@ -45,12 +46,12 @@ export function DecisionsPagination({
           {page <= 1 ? (
             <span>
               <ChevronLeft className="size-4" aria-hidden="true" />
-              Previous
+              {m.common.previous}
             </span>
           ) : (
             <Link href={decisionsListHref({ page: page - 1, ...query })}>
               <ChevronLeft className="size-4" aria-hidden="true" />
-              Previous
+              {m.common.previous}
             </Link>
           )}
         </Button>
@@ -83,12 +84,12 @@ export function DecisionsPagination({
         >
           {page >= totalPages ? (
             <span>
-              Next
+              {m.common.next}
               <ChevronRight className="size-4" aria-hidden="true" />
             </span>
           ) : (
             <Link href={decisionsListHref({ page: page + 1, ...query })}>
-              Next
+              {m.common.next}
               <ChevronRight className="size-4" aria-hidden="true" />
             </Link>
           )}

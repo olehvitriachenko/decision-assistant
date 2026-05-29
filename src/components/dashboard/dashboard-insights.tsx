@@ -4,6 +4,8 @@ import { Brain, ShieldCheck, Sparkles, Tags } from "lucide-react";
 import { routes } from "@/lib/config/routes";
 import { getBiasDescription } from "@/lib/bias-descriptions";
 import type { DecisionDashboardInsights } from "@/lib/db/decisions";
+import { formatAnalyzedDecisionCount } from "@/lib/i18n/format";
+import { m } from "@/lib/i18n/uk";
 import { supportLevelLabels } from "@/lib/support-score";
 import { FrequencyBarList, formatSupportDistributionValue } from "@/components/dashboard/frequency-bar-list";
 import { Button } from "@/components/ui/button";
@@ -45,7 +47,7 @@ export function DashboardInsights({
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-            Insights
+            {m.dashboard.insights}
           </h2>
         </div>
 
@@ -56,15 +58,14 @@ export function DashboardInsights({
             </span>
             <div className="space-y-2">
               <p className="text-base font-medium">
-                Create your first decision to unlock insights.
+                {m.dashboard.insightsEmptyTitle}
               </p>
               <p className="max-w-md text-sm text-muted-foreground text-pretty">
-                Once your decision is analyzed, you&apos;ll see category trends,
-                common biases, and support score distribution here.
+                {m.dashboard.insightsEmptyDescription}
               </p>
             </div>
             <Button asChild>
-              <Link href={routes.decisionsNew}>New Decision</Link>
+              <Link href={routes.decisionsNew}>{m.nav.newDecision}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -81,11 +82,12 @@ export function DashboardInsights({
     <section className="space-y-4">
       <div className="space-y-1">
         <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-          Insights
+          {m.dashboard.insights}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Insights generated from {insights.analyzedCount} analyzed{" "}
-          {insights.analyzedCount === 1 ? "decision" : "decisions"}.
+          {m.dashboard.insightsFrom(
+            formatAnalyzedDecisionCount(insights.analyzedCount)
+          )}
         </p>
       </div>
 
@@ -97,17 +99,15 @@ export function DashboardInsights({
                 <Tags className="size-4 text-primary" aria-hidden="true" />
               </span>
               <div className="space-y-0.5">
-                <CardTitle className="text-base">Decision categories</CardTitle>
-                <CardDescription>
-                  Most common types across your decisions.
-                </CardDescription>
+                <CardTitle className="text-base">{m.dashboard.categoriesTitle}</CardTitle>
+                <CardDescription>{m.dashboard.categoriesDescription}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <FrequencyBarList
               items={insights.categories}
-              emptyMessage="No category data yet."
+              emptyMessage={m.dashboard.noCategoryData}
               barClassName="bg-primary/70"
             />
           </CardContent>
@@ -120,17 +120,15 @@ export function DashboardInsights({
                 <Brain className="size-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
               </span>
               <div className="space-y-0.5">
-                <CardTitle className="text-base">Common biases</CardTitle>
-                <CardDescription>
-                  Cognitive patterns that appear most often.
-                </CardDescription>
+                <CardTitle className="text-base">{m.dashboard.biasesTitle}</CardTitle>
+                <CardDescription>{m.dashboard.biasesDescription}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <FrequencyBarList
               items={insights.biases}
-              emptyMessage="No bias patterns detected yet."
+              emptyMessage={m.dashboard.noBiasData}
               barClassName="bg-amber-500/70 dark:bg-amber-400/70"
               getHint={(item) => getBiasDescription(item.label).description || undefined}
             />
@@ -144,10 +142,8 @@ export function DashboardInsights({
                 <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </span>
               <div className="space-y-0.5">
-                <CardTitle className="text-base">Support distribution</CardTitle>
-                <CardDescription>
-                  Distribution of support scores across your decisions.
-                </CardDescription>
+                <CardTitle className="text-base">{m.dashboard.supportTitle}</CardTitle>
+                <CardDescription>{m.dashboard.supportDescription}</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -156,7 +152,7 @@ export function DashboardInsights({
               items={supportItems}
               total={insights.analyzedCount}
               formatValue={formatSupportDistributionValue}
-              emptyMessage="No support score data yet."
+              emptyMessage={m.dashboard.noSupportData}
               getBarClassName={(item) =>
                 supportDistributionItems.find((entry) => entry.label === item.label)
                   ?.barClassName ?? "bg-primary/70"

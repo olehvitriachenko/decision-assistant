@@ -1,25 +1,27 @@
 import { z } from "zod";
 
+import { m } from "@/lib/i18n/uk";
+
 export const createDecisionSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(1, "Title is required")
-    .max(200, "Title must be 200 characters or less"),
+    .min(1, m.decisions.validation.titleRequired)
+    .max(200, m.decisions.validation.titleMax),
   situation: z
     .string()
     .trim()
-    .min(1, "Situation is required")
-    .max(5000, "Situation must be 5000 characters or less"),
+    .min(1, m.decisions.validation.situationRequired)
+    .max(5000, m.decisions.validation.situationMax),
   decision: z
     .string()
     .trim()
-    .min(1, "Decision is required")
-    .max(5000, "Decision must be 5000 characters or less"),
+    .min(1, m.decisions.validation.decisionRequired)
+    .max(5000, m.decisions.validation.decisionMax),
   thoughts: z
     .string()
     .trim()
-    .max(5000, "Thoughts must be 5000 characters or less")
+    .max(5000, m.decisions.validation.thoughtsMax)
     .optional()
     .transform((value) => value || undefined),
 });

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { resumePendingAnalysis } from "@/lib/actions/decisions";
+import { m } from "@/lib/i18n/uk";
 import type { DecisionStatus } from "@/lib/types/decision";
 
 const POLL_INTERVAL_MS = 2500;
@@ -100,10 +101,9 @@ export function DecisionProcessingCard() {
           />
         </span>
         <div className="space-y-1">
-          <p className="font-medium">Analysis in progress</p>
+          <p className="font-medium">{m.decisions.analysis.inProgressTitle}</p>
           <p className="max-w-sm text-sm text-muted-foreground text-balance">
-            AI is reviewing your decision. This page will update automatically
-            when the analysis is ready.
+            {m.decisions.analysis.inProgressDescription}
           </p>
         </div>
       </div>

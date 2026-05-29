@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { m } from "@/lib/i18n/uk";
 
 import "./globals.css";
 
@@ -12,8 +13,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Decision Assistant",
-  description: "AI-powered decision analysis assistant",
+  title: m.meta.title,
+  description: m.meta.description,
 };
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="uk"
       suppressHydrationWarning
       className={`${inter.variable} h-full antialiased`}
     >

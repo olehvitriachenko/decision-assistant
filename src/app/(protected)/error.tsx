@@ -1,6 +1,7 @@
 "use client";
 
 import { RouteError } from "@/components/layout/route-error";
+import { m } from "@/lib/i18n/uk";
 
 export default function ProtectedError({
   error,
@@ -13,8 +14,8 @@ export default function ProtectedError({
     <RouteError
       error={error}
       reset={reset}
-      title="Unable to load this page"
-      description="Something went wrong while fetching your data. Try again or return to the dashboard."
+      title={m.errors.protectedTitle}
+      description={m.errors.protectedDescription}
     />
   );
 }

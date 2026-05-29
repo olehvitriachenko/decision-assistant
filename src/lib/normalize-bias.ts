@@ -1,3 +1,5 @@
+import { getBiasDisplayLabel } from "@/lib/i18n/bias-labels";
+
 const BIAS_CANONICAL_LABELS: Record<string, string> = {
   overconfidence: "Overconfidence Bias",
   "overconfidence bias": "Overconfidence Bias",
@@ -34,6 +36,22 @@ const BIAS_CANONICAL_LABELS: Record<string, string> = {
   "dunning-kruger effect": "Dunning-Kruger Effect",
   "dunning kruger effect": "Dunning-Kruger Effect",
   "dunning-kruger": "Dunning-Kruger Effect",
+  "ambiguity effect": "Ambiguity Effect",
+  ambiguity: "Ambiguity Effect",
+  "ambiguity bias": "Ambiguity Effect",
+  "herding bias": "Herding Bias",
+  "herding effect": "Herding Bias",
+  herding: "Herding Bias",
+  "framing bias": "Framing Bias",
+  framing: "Framing Bias",
+  "survivorship bias": "Survivorship Bias",
+  survivorship: "Survivorship Bias",
+  "outcome bias": "Outcome Bias",
+  outcome: "Outcome Bias",
+  "affect heuristic": "Affect Heuristic",
+  "default effect": "Default Effect",
+  "default bias": "Default Effect",
+  "illusion of control": "Illusion of Control",
 };
 
 function normalizeLookupKey(value: string) {
@@ -103,6 +121,9 @@ function lookupCanonicalLabel(key: string) {
 
 const CANONICAL_TO_STABLE_KEY: Record<string, string> = {
   "Fear of Missing Out": "fomo",
+  "Ambiguity Effect": "ambiguity effect",
+  "Herding Bias": "herding bias",
+  "Bandwagon Effect": "bandwagon effect",
 };
 
 function getStableBiasKey(canonicalLabel: string) {
@@ -121,9 +142,10 @@ export function normalizeBias(value: string) {
     const canonicalLabel = lookupCanonicalLabel(lookupKey);
 
     if (canonicalLabel) {
+      const stableKey = getStableBiasKey(canonicalLabel);
       return {
-        key: getStableBiasKey(canonicalLabel),
-        label: canonicalLabel,
+        key: stableKey,
+        label: getBiasDisplayLabel(stableKey, canonicalLabel),
       };
     }
   }
@@ -132,9 +154,10 @@ export function normalizeBias(value: string) {
     trimmed.replace(/\s*\([^)]*\)/g, " ").trim() || trimmed
   );
   const canonicalLabel = formatFallbackBiasLabel(fallbackKey);
+  const stableKey = getStableBiasKey(canonicalLabel);
 
   return {
-    key: getStableBiasKey(canonicalLabel),
-    label: canonicalLabel,
+    key: stableKey,
+    label: getBiasDisplayLabel(stableKey, canonicalLabel),
   };
 }

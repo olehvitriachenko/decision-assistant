@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
 import { routes } from "@/lib/config/routes";
+import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
@@ -29,26 +30,23 @@ export default async function HomePage() {
         </div>
         <div className="space-y-3">
           <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Make better decisions with AI
+            {m.landing.title}
           </h1>
           <p className="mx-auto max-w-lg text-base text-muted-foreground text-pretty">
-            Capture choices, uncover cognitive biases, and explore alternatives
-            you might have missed.
+            {m.landing.subtitle}
           </p>
         </div>
         <Card className="border-border/60 bg-card/80 text-left backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Get started</CardTitle>
-            <CardDescription>
-              Create an account or sign in to analyze your first decision.
-            </CardDescription>
+            <CardTitle>{m.landing.getStarted}</CardTitle>
+            <CardDescription>{m.landing.getStartedDescription}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 sm:flex-row">
             <Button asChild className="flex-1">
-              <Link href={routes.login}>Sign in</Link>
+              <Link href={routes.login}>{m.landing.signIn}</Link>
             </Button>
             <Button asChild variant="outline" className="flex-1">
-              <Link href={routes.register}>Create account</Link>
+              <Link href={routes.register}>{m.landing.createAccount}</Link>
             </Button>
           </CardContent>
         </Card>

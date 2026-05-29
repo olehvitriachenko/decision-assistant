@@ -1,3 +1,5 @@
+import { m } from "@/lib/i18n/uk";
+
 export type SupportLevel = "low" | "medium" | "high";
 
 export function getSupportLevel(confidence: number): SupportLevel {
@@ -12,11 +14,7 @@ export function getSupportLevel(confidence: number): SupportLevel {
   return "low";
 }
 
-export const supportLevelLabels: Record<SupportLevel, string> = {
-  low: "Low Support",
-  medium: "Medium Support",
-  high: "High Support",
-};
+export const supportLevelLabels = m.support;
 
 export function formatSupportScore(confidence: number) {
   return `${supportLevelLabels[getSupportLevel(confidence)]} · ${confidence}`;

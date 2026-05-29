@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { m } from "@/lib/i18n/uk";
 
 function toggleWithViewTransition(callback: () => void) {
   if (typeof document === "undefined") {
@@ -32,7 +33,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon-sm" disabled aria-label="Toggle theme">
+      <Button variant="ghost" size="icon-sm" disabled aria-label={m.common.toggleTheme}>
         <Sun className="size-4" />
       </Button>
     );
@@ -51,7 +52,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon-sm"
       onClick={handleToggle}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={isDark ? m.common.lightMode : m.common.darkMode}
     >
       {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>

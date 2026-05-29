@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { signOut } from "@/lib/actions/auth";
+import { m } from "@/lib/i18n/uk";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -52,7 +53,7 @@ export function UserMenu({ email }: { email: string }) {
         variant="outline"
         size="icon-sm"
         className="size-8 rounded-lg font-medium"
-        aria-label="Account menu"
+        aria-label={m.auth.accountMenu}
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((current) => !current)}
@@ -81,7 +82,7 @@ export function UserMenu({ email }: { email: string }) {
               className="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <LogOut className="size-4" aria-hidden="true" />
-              Log out
+              {m.auth.logOut}
             </button>
           </form>
         </div>

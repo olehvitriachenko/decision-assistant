@@ -1,5 +1,7 @@
 import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
+import { formatDateTime } from "@/lib/i18n/format";
+import { m } from "@/lib/i18n/uk";
 import { DecisionAnalysisCard } from "@/components/decisions/decision-analysis-card";
 import {
   DecisionAnalysisPoller,
@@ -14,13 +16,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-function formatCreatedAt(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 function DetailSection({
   label,
@@ -57,7 +52,7 @@ export function DecisionDetailView({
               <DecisionStatusBadge status={decision.status} />
             ) : null}
             <span className="text-sm text-muted-foreground">
-              Created {formatCreatedAt(decision.created_at)}
+              {m.common.createdAt(formatDateTime(decision.created_at))}
             </span>
           </div>
           {decision.status !== "completed" ? (
@@ -71,19 +66,26 @@ export function DecisionDetailView({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Decision context</CardTitle>
-          <CardDescription>
-            The situation and choice you submitted for analysis.
-          </CardDescription>
+          <CardTitle className="text-base">{m.decisions.detail.contextTitle}</CardTitle>
+          <CardDescription>{m.decisions.detail.contextDescription}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <DetailSection label="Situation" content={decision.situation} />
+          <DetailSection
+            label={m.decisions.detail.situation}
+            content={decision.situation}
+          />
           <Separator />
-          <DetailSection label="Decision" content={decision.decision} />
+          <DetailSection
+            label={m.decisions.detail.decision}
+            content={decision.decision}
+          />
           {decision.thoughts ? (
             <>
               <Separator />
-              <DetailSection label="Thoughts" content={decision.thoughts} />
+              <DetailSection
+                label={m.decisions.detail.thoughts}
+                content={decision.thoughts}
+              />
             </>
           ) : null}
         </CardContent>
