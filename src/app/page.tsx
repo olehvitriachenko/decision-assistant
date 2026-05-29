@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { routes } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ export default async function HomePage() {
   const user = await getUser();
 
   if (user) {
-    redirect("/dashboard");
+    redirect(routes.dashboard);
   }
 
   return (
@@ -30,10 +31,10 @@ export default async function HomePage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row">
           <Button asChild className="flex-1">
-            <Link href="/login">Sign in</Link>
+            <Link href={routes.login}>Sign in</Link>
           </Button>
           <Button asChild variant="outline" className="flex-1">
-            <Link href="/register">Create account</Link>
+            <Link href={routes.register}>Create account</Link>
           </Button>
         </CardContent>
       </Card>

@@ -1,7 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import {
+  authRoutePrefixes,
+  protectedRoutePrefixes,
+  routes,
+} from "@/lib/config/routes";
 import { getSupabaseEnv } from "@/lib/supabase/env";
+
+function matchesRoutePrefix(pathname: string, prefixes: readonly string[]) {
+  return prefixes.some((prefix) => pathname.startsWith(prefix));
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -33,21 +42,18 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   const pathname = request.nextUrl.pathname;
-  const isAuthCallback = pathname.startsWith("/auth/callback");
-  const isAuthRoute =
-    pathname.startsWith("/login") || pathname.startsWith("/register");
-  const isProtectedRoute =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/decisions");
+  const isAuthRoute = matchesRoutePrefix(pathname, authRoutePrefixes);
+  const isProtectedRoute = matchesRoutePrefix(pathname, protectedRoutePrefixes);
 
   if (!user && isProtectedRoute) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/login";
+    redirectUrl.pathname = routes.login;
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && isAuthRoute && !isAuthCallback) {
+  if (user && isAuthRoute) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
+    redirectUrl.pathname = routes.dashboard;
     return NextResponse.redirect(redirectUrl);
   }
 

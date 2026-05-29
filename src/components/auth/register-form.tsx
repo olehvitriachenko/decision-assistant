@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { routes } from "@/lib/config/routes";
 import { signUp, type AuthActionState } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +32,6 @@ export function RegisterForm() {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4">
-          {state.success ? (
-            <p className="text-sm text-foreground" role="status">
-              {state.success}
-            </p>
-          ) : null}
-
           {state.error ? (
             <p className="text-sm text-destructive" role="alert">
               {state.error}
@@ -85,7 +80,7 @@ export function RegisterForm() {
           </Button>
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="text-primary underline-offset-4 hover:underline">
+            <Link href={routes.login} className="text-primary underline-offset-4 hover:underline">
               Sign in
             </Link>
           </p>

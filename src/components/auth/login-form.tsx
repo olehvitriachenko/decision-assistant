@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { routes } from "@/lib/config/routes";
 import {
   signInWithPassword,
   type AuthActionState,
@@ -21,13 +22,11 @@ import { Label } from "@/components/ui/label";
 
 const initialState: AuthActionState = {};
 
-export function LoginForm({ callbackError }: { callbackError?: string }) {
+export function LoginForm() {
   const [state, formAction, isPending] = useActionState(
     signInWithPassword,
     initialState
   );
-
-  const errorMessage = state.error ?? callbackError;
 
   return (
     <Card className="w-full max-w-md">
@@ -39,9 +38,9 @@ export function LoginForm({ callbackError }: { callbackError?: string }) {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4">
-          {errorMessage ? (
+          {state.error ? (
             <p className="text-sm text-destructive" role="alert">
-              {errorMessage}
+              {state.error}
             </p>
           ) : null}
 
@@ -87,7 +86,7 @@ export function LoginForm({ callbackError }: { callbackError?: string }) {
           </Button>
           <p className="text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-primary underline-offset-4 hover:underline">
+            <Link href={routes.register} className="text-primary underline-offset-4 hover:underline">
               Create one
             </Link>
           </p>

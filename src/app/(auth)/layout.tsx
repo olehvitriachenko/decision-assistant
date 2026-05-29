@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { routes } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
 
 export default async function AuthLayout({
@@ -10,7 +11,7 @@ export default async function AuthLayout({
   const user = await getUser();
 
   if (user) {
-    redirect("/dashboard");
+    redirect(routes.dashboard);
   }
 
   return (

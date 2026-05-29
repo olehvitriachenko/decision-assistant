@@ -1,3 +1,4 @@
+import { decisionsTableName } from "@/lib/config/database";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDecisionInput } from "@/lib/validations/decision";
 import type { Decision, DecisionListItem } from "@/lib/types/decision";
@@ -8,7 +9,7 @@ export async function getDecisionsByUserId(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("decisions")
+    .from(decisionsTableName)
     .select("id, title, status, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
@@ -27,7 +28,7 @@ export async function createDecision(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("decisions")
+    .from(decisionsTableName)
     .insert({
       user_id: userId,
       title: input.title,

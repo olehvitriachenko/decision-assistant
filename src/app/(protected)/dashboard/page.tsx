@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { routes } from "@/lib/config/routes";
 import { signOut } from "@/lib/actions/auth";
 import { getDecisionsByUserId } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
@@ -18,7 +19,7 @@ export default async function DashboardPage() {
   const user = await getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(routes.login);
   }
 
   const decisions = await getDecisionsByUserId(user.id);
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
               </CardDescription>
             </div>
             <Button asChild>
-              <Link href="/decisions/new">New decision</Link>
+              <Link href={routes.decisionsNew}>New Decision</Link>
             </Button>
           </div>
         </CardHeader>

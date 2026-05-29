@@ -15,9 +15,20 @@ export function getSupabaseEnv() {
   };
 }
 
-export function getSiteUrl() {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "http://localhost:3000"
-  );
+export function getSupabaseProjectRef() {
+  const fromEnv = process.env.SUPABASE_PROJECT_REF?.trim();
+  if (fromEnv) {
+    return fromEnv;
+  }
+
+  const { url } = getSupabaseEnv();
+  const match = url.match(/^https:\/\/([^.]+)\.supabase\.co\/?$/);
+
+  if (!match) {
+    throw new Error(
+      "Could not derive project ref from NEXT_PUBLIC_SUPABASE_URL. Set SUPABASE_PROJECT_REF."
+    );
+  }
+
+  return match[1];
 }

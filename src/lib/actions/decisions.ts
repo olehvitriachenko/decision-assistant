@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { routes } from "@/lib/config/routes";
 import { createDecision as createDecisionRecord } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
 import { createDecisionSchema } from "@/lib/validations/decision";
@@ -34,7 +35,7 @@ export async function createDecision(
   const user = await getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(routes.login);
   }
 
   const parsed = parseDecisionFormData(formData);
@@ -56,5 +57,5 @@ export async function createDecision(
     };
   }
 
-  redirect("/dashboard");
+  redirect(routes.dashboard);
 }

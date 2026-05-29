@@ -14,7 +14,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
 * Tailwind CSS
 * shadcn/ui
 * Supabase
-* Drizzle ORM
 * OpenAI
 * Zod
 
@@ -55,7 +54,6 @@ Store structured output in the database.
 * Prefer Server Actions over API routes when possible.
 * Use TypeScript strictly.
 * Use Zod validation.
-* Use Drizzle ORM.
 * Keep business logic outside UI components.
 * Keep database logic in dedicated modules.
 * Avoid unnecessary abstractions.

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { routes } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
 
 export default async function ProtectedLayout({
@@ -10,7 +11,7 @@ export default async function ProtectedLayout({
   const user = await getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(routes.login);
   }
 
   return children;

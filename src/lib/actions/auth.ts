@@ -2,13 +2,12 @@
 
 import { redirect } from "next/navigation";
 
+import { routes } from "@/lib/config/routes";
 import { createClient } from "@/lib/supabase/server";
-import { getSiteUrl } from "@/lib/supabase/env";
 import { authCredentialsSchema } from "@/lib/validations/auth";
 
 export type AuthActionState = {
   error?: string;
-  success?: string;
   fieldErrors?: {
     email?: string[];
     password?: string[];
@@ -44,7 +43,7 @@ export async function signInWithPassword(
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  redirect(routes.dashboard);
 }
 
 export async function signUp(
@@ -63,9 +62,6 @@ export async function signUp(
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: {
-      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
-    },
   });
 
   if (error) {
@@ -74,12 +70,12 @@ export async function signUp(
 
   if (!data.session) {
     return {
-      success:
-        "Account created. Check your email and click the confirmation link, then sign in.",
+      error:
+        "Account was created but no session was returned. Disable email confirmation in Supabase Auth settings.",
     };
   }
 
-  redirect("/dashboard");
+  redirect(routes.dashboard);
 }
 
 export async function signOut() {
@@ -90,5 +86,5 @@ export async function signOut() {
     throw new Error(error.message);
   }
 
-  redirect("/login");
+  redirect(routes.login);
 }

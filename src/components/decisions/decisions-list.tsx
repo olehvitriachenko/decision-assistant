@@ -22,7 +22,7 @@ export function DecisionsList({ decisions }: { decisions: DecisionListItem[] }) 
         <CardHeader>
           <CardTitle>No decisions yet</CardTitle>
           <CardDescription>
-            Create your first decision to start tracking and analyzing choices.
+            Create your first decision to get started.
           </CardDescription>
         </CardHeader>
       </Card>
