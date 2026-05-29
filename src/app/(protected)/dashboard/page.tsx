@@ -2,8 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
-import { getDecisionsByUserIdPaginated } from "@/lib/db/decisions";
+import {
+  getDecisionDashboardInsights,
+  getDecisionsByUserIdPaginated,
+} from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
+import { DashboardInsights } from "@/components/dashboard/dashboard-insights";
 import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
 import { PageContainer } from "@/components/layout/page-container";
@@ -18,11 +22,10 @@ export default async function DashboardPage() {
     redirect(routes.login);
   }
 
-  const { decisions, total } = await getDecisionsByUserIdPaginated(
-    user.id,
-    1,
-    DASHBOARD_PREVIEW_LIMIT
-  );
+  const [{ decisions, total }, insights] = await Promise.all([
+    getDecisionsByUserIdPaginated(user.id, 1, DASHBOARD_PREVIEW_LIMIT),
+    getDecisionDashboardInsights(user.id),
+  ]);
 
   const showViewAll = total > DASHBOARD_PREVIEW_LIMIT;
   const processingDecisionIds = decisions
@@ -34,16 +37,17 @@ export default async function DashboardPage() {
       <DecisionsProcessingWatcher decisionIds={processingDecisionIds} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Signed in as{" "}
-            <span className="font-medium text-foreground">{user.email}</span>
-          </p>
+          <h1 className="text-3xl font-semibold tracking-tight">Welcome back</h1>
+          {user.email ? (
+            <p className="text-xs text-muted-foreground">{user.email}</p>
+          ) : null}
         </div>
         <p className="text-sm text-muted-foreground">
           {total} {total === 1 ? "decision" : "decisions"}
         </p>
       </div>
+
+      <DashboardInsights insights={insights} />
 
       <section className="space-y-4">
         <h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">

@@ -1,5 +1,6 @@
 import {
   type DecisionCategoryFilter,
+  decisionCategoryFilterLabels,
   type DecisionListQuery,
   type DecisionSortOption,
   DEFAULT_DECISION_LIST_QUERY,
@@ -7,7 +8,13 @@ import {
   statusFilterToDecisionStatus,
 } from "@/lib/config/decision-list-params";
 import { decisionsTableName } from "@/lib/config/database";
-import { getLatestAnalysesByDecisionIds } from "@/lib/db/analyses";
+import {
+  getLatestAnalysesByDecisionIds,
+  getLatestAnalysesWithBiasesByDecisionIds,
+} from "@/lib/db/analyses";
+import { normalizeDecisionCategory } from "@/lib/config/decision-list-params";
+import { normalizeBias } from "@/lib/normalize-bias";
+import { getSupportLevel } from "@/lib/support-score";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDecisionInput } from "@/lib/validations/decision";
 import type { Decision, DecisionListItem, DecisionStatus } from "@/lib/types/decision";
@@ -29,6 +36,102 @@ export type DecisionSupportStats = {
   mediumSupport: number;
   lowSupport: number;
 };
+
+export type DashboardFrequencyItem = {
+  label: string;
+  count: number;
+};
+
+export type DecisionDashboardInsights = {
+  analyzedCount: number;
+  categories: DashboardFrequencyItem[];
+  biases: DashboardFrequencyItem[];
+  supportDistribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+};
+
+const DASHBOARD_INSIGHTS_LIMIT = 6;
+
+function formatCategoryLabel(value: string) {
+  const key = normalizeDecisionCategory(value);
+  const knownLabel =
+    key in decisionCategoryFilterLabels
+      ? decisionCategoryFilterLabels[key as DecisionCategoryFilter]
+      : null;
+
+  if (knownLabel && key !== "all") {
+    return knownLabel;
+  }
+
+  return key
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function countCategoryFrequencies(values: string[]) {
+  const counts = new Map<string, { label: string; count: number }>();
+
+  for (const value of values) {
+    const key = normalizeDecisionCategory(value);
+
+    if (!key) {
+      continue;
+    }
+
+    const existing = counts.get(key);
+
+    if (existing) {
+      existing.count += 1;
+      continue;
+    }
+
+    counts.set(key, {
+      label: formatCategoryLabel(value),
+      count: 1,
+    });
+  }
+
+  return [...counts.values()].sort((a, b) => {
+    const countDiff = b.count - a.count;
+
+    return countDiff !== 0 ? countDiff : a.label.localeCompare(b.label);
+  });
+}
+
+function countBiasFrequencies(values: string[]) {
+  const counts = new Map<string, { label: string; count: number }>();
+
+  for (const value of values) {
+    const normalized = normalizeBias(value);
+
+    if (!normalized) {
+      continue;
+    }
+
+    const existing = counts.get(normalized.key);
+
+    if (existing) {
+      existing.count += 1;
+      continue;
+    }
+
+    counts.set(normalized.key, {
+      label: normalized.label,
+      count: 1,
+    });
+  }
+
+  return [...counts.values()].sort((a, b) => {
+    const countDiff = b.count - a.count;
+
+    return countDiff !== 0 ? countDiff : a.label.localeCompare(b.label);
+  });
+}
 
 type DecisionRow = Pick<
   Decision,
@@ -284,6 +387,53 @@ export async function getDecisionSupportStats(
     highSupport,
     mediumSupport,
     lowSupport,
+  };
+}
+
+export async function getDecisionDashboardInsights(
+  userId: string
+): Promise<DecisionDashboardInsights> {
+  const decisions = await fetchDecisionRows(userId, DEFAULT_DECISION_LIST_QUERY);
+  const analysesByDecisionId = await getLatestAnalysesWithBiasesByDecisionIds(
+    decisions.map((decision) => decision.id)
+  );
+
+  const categories: string[] = [];
+  const biases: string[] = [];
+  let highSupport = 0;
+  let mediumSupport = 0;
+  let lowSupport = 0;
+
+  for (const analysis of analysesByDecisionId.values()) {
+    categories.push(analysis.category);
+
+    for (const bias of analysis.biases) {
+      biases.push(bias);
+    }
+
+    const level = getSupportLevel(analysis.confidence);
+
+    if (level === "high") {
+      highSupport += 1;
+    } else if (level === "medium") {
+      mediumSupport += 1;
+    } else {
+      lowSupport += 1;
+    }
+  }
+
+  return {
+    analyzedCount: analysesByDecisionId.size,
+    categories: countCategoryFrequencies(categories).slice(
+      0,
+      DASHBOARD_INSIGHTS_LIMIT
+    ),
+    biases: countBiasFrequencies(biases).slice(0, DASHBOARD_INSIGHTS_LIMIT),
+    supportDistribution: {
+      high: highSupport,
+      medium: mediumSupport,
+      low: lowSupport,
+    },
   };
 }
 

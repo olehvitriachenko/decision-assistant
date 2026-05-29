@@ -13,6 +13,15 @@ export default function DashboardLoading() {
       </div>
 
       <div className="space-y-4">
+        <Skeleton className="h-4 w-24" />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Skeleton className="h-72 w-full rounded-xl" />
+          <Skeleton className="h-72 w-full rounded-xl" />
+          <Skeleton className="h-72 w-full rounded-xl" />
+        </div>
+      </div>
+
+      <div className="space-y-4">
         <Skeleton className="h-4 w-32" />
         <div className="grid gap-3">
           {Array.from({ length: 3 }).map((_, index) => (

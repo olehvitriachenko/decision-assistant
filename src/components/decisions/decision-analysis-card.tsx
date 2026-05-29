@@ -11,7 +11,7 @@ import {
   CategoryBadge,
   SupportScoreBadge,
 } from "@/components/decisions/decision-badges";
-import { Badge } from "@/components/ui/badge";
+import { BiasInsightsList } from "@/components/decisions/bias-insights-list";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -111,13 +111,7 @@ export function DecisionAnalysisCard({
             Possible biases
           </h3>
           {analysis.biases.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {analysis.biases.map((bias) => (
-                <Badge key={bias} variant="secondary">
-                  {bias}
-                </Badge>
-              ))}
-            </div>
+            <BiasInsightsList biases={analysis.biases} />
           ) : (
             <p className="text-sm text-muted-foreground">
               No notable biases identified.
