@@ -8,7 +8,7 @@ import {
   updateDecisionStatus,
 } from "@/lib/db/decisions";
 import { analyzeDecision } from "@/lib/openai/analyze-decision";
-import { routes } from "@/lib/config/routes";
+import { routes, decisionDetailPath } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
 import { createDecisionSchema } from "@/lib/validations/decision";
 
@@ -90,5 +90,5 @@ export async function createDecision(
     }
   }
 
-  redirect(routes.dashboard);
+  redirect(decisionDetailPath(decision.id));
 }

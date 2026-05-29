@@ -76,7 +76,7 @@ function AnalysisLoadingPanel({ isRedirecting }: { isRedirecting: boolean }) {
         </p>
         <p className="text-sm text-muted-foreground">
           {isRedirecting
-            ? "Redirecting to your dashboard..."
+            ? "Opening your analysis..."
             : "This usually takes a few seconds. Please keep this tab open."}
         </p>
       </div>
