@@ -1,12 +1,14 @@
+import Link from "next/link";
+
+import { decisionDetailPath } from "@/lib/config/routes";
 import type { DecisionListItem } from "@/lib/types/decision";
+import { DecisionStatusBadge } from "@/components/decisions/decision-status-badge";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DecisionStatusBadge } from "@/components/decisions/decision-status-badge";
 
 function formatCreatedAt(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -32,17 +34,23 @@ export function DecisionsList({ decisions }: { decisions: DecisionListItem[] }) 
   return (
     <div className="space-y-3">
       {decisions.map((decision) => (
-        <Card key={decision.id} size="sm">
-          <CardHeader className="gap-2">
-            <div className="flex items-start justify-between gap-3">
-              <CardTitle className="text-base">{decision.title}</CardTitle>
-              <DecisionStatusBadge status={decision.status} />
-            </div>
-            <CardDescription>
-              Created {formatCreatedAt(decision.created_at)}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <Link
+          key={decision.id}
+          href={decisionDetailPath(decision.id)}
+          className="block transition-opacity hover:opacity-80"
+        >
+          <Card size="sm">
+            <CardHeader className="gap-2">
+              <div className="flex items-start justify-between gap-3">
+                <CardTitle className="text-base">{decision.title}</CardTitle>
+                <DecisionStatusBadge status={decision.status} />
+              </div>
+              <CardDescription>
+                Created {formatCreatedAt(decision.created_at)}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
       ))}
     </div>
   );

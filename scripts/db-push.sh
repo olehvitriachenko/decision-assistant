@@ -9,4 +9,4 @@ if [ ! -f "supabase/.temp/project-ref" ]; then
   exit 1
 fi
 
-npx supabase db push "$@"
+npx supabase db push --yes "$@"

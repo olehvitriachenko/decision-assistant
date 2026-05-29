@@ -2,8 +2,13 @@
 
 import { redirect } from "next/navigation";
 
+import { createAnalysis } from "@/lib/db/analyses";
+import {
+  createDecision as createDecisionRecord,
+  updateDecisionStatus,
+} from "@/lib/db/decisions";
+import { analyzeDecision } from "@/lib/openai/analyze-decision";
 import { routes } from "@/lib/config/routes";
-import { createDecision as createDecisionRecord } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
 import { createDecisionSchema } from "@/lib/validations/decision";
 
@@ -46,8 +51,10 @@ export async function createDecision(
     };
   }
 
+  let decision;
+
   try {
-    await createDecisionRecord(user.id, parsed.data);
+    decision = await createDecisionRecord(user.id, parsed.data);
   } catch (error) {
     return {
       error:
@@ -55,6 +62,32 @@ export async function createDecision(
           ? error.message
           : "Failed to create decision. Please try again.",
     };
+  }
+
+  try {
+    const analysis = await analyzeDecision({
+      title: decision.title,
+      situation: decision.situation,
+      decision: decision.decision,
+      thoughts: decision.thoughts ?? undefined,
+    });
+
+    await createAnalysis({
+      decisionId: decision.id,
+      category: analysis.category,
+      confidence: analysis.confidence,
+      biases: analysis.biases,
+      alternatives: analysis.alternatives,
+      summary: analysis.summary,
+    });
+
+    await updateDecisionStatus(decision.id, "completed");
+  } catch {
+    try {
+      await updateDecisionStatus(decision.id, "failed");
+    } catch {
+      // Decision remains in processing if status update fails.
+    }
   }
 
   redirect(routes.dashboard);

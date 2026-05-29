@@ -1,7 +1,7 @@
 import { decisionsTableName } from "@/lib/config/database";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDecisionInput } from "@/lib/validations/decision";
-import type { Decision, DecisionListItem } from "@/lib/types/decision";
+import type { Decision, DecisionListItem, DecisionStatus } from "@/lib/types/decision";
 
 export async function getDecisionsByUserId(
   userId: string
@@ -19,6 +19,24 @@ export async function getDecisionsByUserId(
   }
 
   return data ?? [];
+}
+
+export async function getDecisionById(
+  decisionId: string
+): Promise<Decision | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from(decisionsTableName)
+    .select("*")
+    .eq("id", decisionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 }
 
 export async function createDecision(
@@ -45,4 +63,20 @@ export async function createDecision(
   }
 
   return data;
+}
+
+export async function updateDecisionStatus(
+  decisionId: string,
+  status: DecisionStatus
+): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from(decisionsTableName)
+    .update({ status })
+    .eq("id", decisionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
