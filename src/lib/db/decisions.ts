@@ -23,6 +23,13 @@ export type PaginatedDecisions = {
   query: DecisionListQuery;
 };
 
+export type DecisionSupportStats = {
+  total: number;
+  highSupport: number;
+  mediumSupport: number;
+  lowSupport: number;
+};
+
 type DecisionRow = Pick<
   Decision,
   "id" | "title" | "status" | "created_at"
@@ -238,6 +245,46 @@ export async function getDecisionsByUserIdPaginated(
   }
 
   return getDecisionsWithSqlPagination(userId, page, pageSize, query);
+}
+
+export async function getDecisionSupportStats(
+  userId: string
+): Promise<DecisionSupportStats> {
+  const decisions = await fetchDecisionRows(userId, DEFAULT_DECISION_LIST_QUERY);
+  const analysesByDecisionId = await getLatestAnalysesByDecisionIds(
+    decisions.map((decision) => decision.id)
+  );
+
+  let highSupport = 0;
+  let mediumSupport = 0;
+  let lowSupport = 0;
+
+  for (const decision of decisions) {
+    const confidence = analysesByDecisionId.get(decision.id)?.confidence;
+
+    if (confidence === undefined) {
+      continue;
+    }
+
+    if (confidence >= 70) {
+      highSupport += 1;
+      continue;
+    }
+
+    if (confidence >= 40) {
+      mediumSupport += 1;
+      continue;
+    }
+
+    lowSupport += 1;
+  }
+
+  return {
+    total: decisions.length,
+    highSupport,
+    mediumSupport,
+    lowSupport,
+  };
 }
 
 export async function getDecisionById(

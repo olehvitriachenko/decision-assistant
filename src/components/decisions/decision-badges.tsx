@@ -1,5 +1,7 @@
 import type { DecisionStatus } from "@/lib/types/decision";
+import { classifySupportScore } from "@/lib/support-score";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const statusLabels: Record<DecisionStatus, string> = {
   processing: "Processing",
@@ -7,32 +9,42 @@ const statusLabels: Record<DecisionStatus, string> = {
   failed: "Failed",
 };
 
-const statusVariants: Record<
-  DecisionStatus,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  processing: "secondary",
-  completed: "default",
-  failed: "destructive",
-};
-
 export function DecisionStatusBadge({ status }: { status: DecisionStatus }) {
   return (
-    <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>
+    <Badge
+      variant="outline"
+      className="border-border/40 bg-transparent px-1.5 text-[0.65rem] font-normal text-muted-foreground"
+    >
+      {statusLabels[status]}
+    </Badge>
   );
 }
 
 export function CategoryBadge({ category }: { category: string }) {
   return (
-    <Badge variant="outline" className="capitalize">
+    <Badge
+      variant="outline"
+      className="border-border/60 bg-background/60 capitalize backdrop-blur-sm"
+    >
       {category}
     </Badge>
   );
 }
 
-export function ConfidenceBadge({ confidence }: { confidence: number }) {
-  const variant =
-    confidence >= 70 ? "default" : confidence >= 40 ? "secondary" : "outline";
+export function SupportScoreBadge({ confidence }: { confidence: number }) {
+  const support = classifySupportScore(confidence);
 
-  return <Badge variant={variant}>{confidence}% confidence</Badge>;
+  return (
+    <Badge
+      variant="outline"
+      className={cn("border font-medium", support.className)}
+    >
+      {support.formatted}
+    </Badge>
+  );
+}
+
+/** @deprecated Use SupportScoreBadge */
+export function ConfidenceBadge({ confidence }: { confidence: number }) {
+  return <SupportScoreBadge confidence={confidence} />;
 }

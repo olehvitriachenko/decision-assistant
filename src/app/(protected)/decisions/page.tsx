@@ -10,11 +10,13 @@ import {
 import { routes } from "@/lib/config/routes";
 import {
   DECISIONS_PAGE_SIZE,
+  getDecisionSupportStats,
   getDecisionsByUserIdPaginated,
 } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
 import { DecisionsList } from "@/components/decisions/decisions-list";
 import { DecisionsPagination } from "@/components/decisions/decisions-pagination";
+import { DecisionsStats } from "@/components/decisions/decisions-stats";
 import { DecisionsToolbar } from "@/components/decisions/decisions-toolbar";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
@@ -49,12 +51,15 @@ export default async function DecisionsPage({
   const page = parsePageParam(params.page);
   const query = parseDecisionListQuery(params);
 
-  const result = await getDecisionsByUserIdPaginated(
-    user.id,
-    page,
-    DECISIONS_PAGE_SIZE,
-    query
-  );
+  const [result, stats] = await Promise.all([
+    getDecisionsByUserIdPaginated(
+      user.id,
+      page,
+      DECISIONS_PAGE_SIZE,
+      query
+    ),
+    getDecisionSupportStats(user.id),
+  ]);
 
   if (page > result.totalPages && result.total > 0) {
     redirect(decisionsListHref({ sort: query.sort, status: query.status, category: query.category }));
@@ -78,6 +83,7 @@ export default async function DecisionsPage({
       </div>
 
       <section className="space-y-6">
+        <DecisionsStats stats={stats} />
         <Suspense fallback={null}>
           <DecisionsToolbar query={result.query} />
         </Suspense>

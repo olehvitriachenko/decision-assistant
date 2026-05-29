@@ -9,7 +9,7 @@ import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
 import {
   CategoryBadge,
-  ConfidenceBadge,
+  SupportScoreBadge,
 } from "@/components/decisions/decision-badges";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,7 +120,7 @@ export function DecisionAnalysisCard({
       <CardHeader className="gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <CategoryBadge category={analysis.category} />
-          <ConfidenceBadge confidence={analysis.confidence} />
+          <SupportScoreBadge confidence={analysis.confidence} />
         </div>
         <div className="space-y-1">
           <CardTitle className="text-xl">AI Analysis</CardTitle>
