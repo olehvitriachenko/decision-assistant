@@ -1,3 +1,5 @@
+import { Loader2 } from "lucide-react";
+
 import type { DecisionStatus } from "@/lib/types/decision";
 import { classifySupportScore } from "@/lib/support-score";
 import { Badge } from "@/components/ui/badge";
@@ -9,35 +11,85 @@ const statusLabels: Record<DecisionStatus, string> = {
   failed: "Failed",
 };
 
-export function DecisionStatusBadge({ status }: { status: DecisionStatus }) {
+const statusBadgeClassNames: Record<DecisionStatus, string> = {
+  processing:
+    "border-amber-500/30 bg-amber-500/10 font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  failed:
+    "border-destructive/30 bg-destructive/10 font-medium text-destructive dark:bg-destructive/20",
+  completed:
+    "border-border/40 bg-transparent font-normal text-muted-foreground",
+};
+
+const badgeAlignClass = "inline-flex items-center justify-center leading-none py-0";
+
+export function DecisionStatusBadge({
+  status,
+  size = "sm",
+}: {
+  status: DecisionStatus;
+  size?: "sm" | "md";
+}) {
   return (
     <Badge
       variant="outline"
-      className="border-border/40 bg-transparent px-1.5 text-[0.65rem] font-normal text-muted-foreground"
+      className={cn(
+        badgeAlignClass,
+        size === "md" ? "h-6 px-2.5 text-xs" : "h-5 px-1.5 text-[0.65rem]",
+        statusBadgeClassNames[status]
+      )}
     >
+      {status === "processing" ? (
+        <Loader2
+          className={cn("animate-spin", size === "md" ? "size-3.5" : "size-3")}
+          aria-hidden="true"
+        />
+      ) : null}
       {statusLabels[status]}
     </Badge>
   );
 }
 
-export function CategoryBadge({ category }: { category: string }) {
+export function CategoryBadge({
+  category,
+  size = "sm",
+}: {
+  category: string;
+  size?: "sm" | "md";
+}) {
   return (
     <Badge
       variant="outline"
-      className="border-border/60 bg-background/60 capitalize backdrop-blur-sm"
+      className={cn(
+        badgeAlignClass,
+        size === "md"
+          ? "h-6 px-2.5 text-xs capitalize"
+          : "h-5 capitalize",
+        "border-border/60 bg-background/60 backdrop-blur-sm"
+      )}
     >
       {category}
     </Badge>
   );
 }
 
-export function SupportScoreBadge({ confidence }: { confidence: number }) {
+export function SupportScoreBadge({
+  confidence,
+  size = "sm",
+}: {
+  confidence: number;
+  size?: "sm" | "md";
+}) {
   const support = classifySupportScore(confidence);
 
   return (
     <Badge
       variant="outline"
-      className={cn("border font-medium", support.className)}
+      className={cn(
+        badgeAlignClass,
+        size === "md" ? "h-6 px-2.5 text-xs font-medium" : "h-5 font-medium",
+        "border",
+        support.className
+      )}
     >
       {support.formatted}
     </Badge>

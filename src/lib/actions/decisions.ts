@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  PROCESSING_STALE_MS,
+  STATUS_UPDATE_MAX_ATTEMPTS,
+} from "@/lib/config/analysis";
+import {
   createAnalysis,
   getAnalysisByDecisionId,
 } from "@/lib/db/analyses";
@@ -16,7 +20,7 @@ import {
 import { analyzeDecision } from "@/lib/openai/analyze-decision";
 import { routes, decisionDetailPath } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
-import type { Decision } from "@/lib/types/decision";
+import type { Decision, DecisionStatus } from "@/lib/types/decision";
 import { createDecisionSchema } from "@/lib/validations/decision";
 
 export type CreateDecisionActionState = {
@@ -44,15 +48,73 @@ function parseDecisionFormData(formData: FormData) {
   });
 }
 
+function revalidateDecisionPaths(decisionId: string) {
+  revalidatePath(decisionDetailPath(decisionId));
+  revalidatePath(routes.dashboard);
+  revalidatePath(routes.decisions);
+}
+
+async function updateDecisionStatusWithRetry(
+  decisionId: string,
+  status: DecisionStatus
+) {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < STATUS_UPDATE_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      await updateDecisionStatus(decisionId, status);
+      return true;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  console.error(
+    `Failed to update decision ${decisionId} to ${status} after ${STATUS_UPDATE_MAX_ATTEMPTS} attempts.`,
+    lastError
+  );
+
+  return false;
+}
+
+async function syncCompletedDecision(decisionId: string) {
+  const updated = await updateDecisionStatusWithRetry(decisionId, "completed");
+
+  if (updated) {
+    revalidateDecisionPaths(decisionId);
+  }
+
+  return updated;
+}
+
+function isProcessingStale(decision: Decision) {
+  const ageMs = Date.now() - Date.parse(decision.created_at);
+
+  return Number.isFinite(ageMs) && ageMs >= PROCESSING_STALE_MS;
+}
+
 async function runAnalysisPipeline(
   decision: Decision
 ): Promise<{ success: true } | { success: false }> {
   const current = await getDecisionById(decision.id);
 
-  if (!current || current.status !== "processing") {
-    return current?.status === "completed"
-      ? { success: true }
-      : { success: false };
+  if (!current) {
+    return { success: false };
+  }
+
+  if (current.status === "completed") {
+    return { success: true };
+  }
+
+  if (current.status !== "processing") {
+    return { success: false };
+  }
+
+  const existingAnalysis = await getAnalysisByDecisionId(decision.id);
+
+  if (existingAnalysis) {
+    await syncCompletedDecision(decision.id);
+    return { success: true };
   }
 
   try {
@@ -72,15 +134,11 @@ async function runAnalysisPipeline(
       summary: analysis.summary,
     });
 
-    await updateDecisionStatus(decision.id, "completed");
-    return { success: true };
-  } catch {
-    try {
-      await updateDecisionStatus(decision.id, "failed");
-    } catch {
-      // Decision remains in processing if status update fails.
-    }
+    const updated = await updateDecisionStatusWithRetry(decision.id, "completed");
 
+    return updated ? { success: true } : { success: false };
+  } catch {
+    await updateDecisionStatusWithRetry(decision.id, "failed");
     return { success: false };
   }
 }
@@ -88,9 +146,7 @@ async function runAnalysisPipeline(
 function scheduleAnalysisInBackground(decision: Decision) {
   after(async () => {
     await runAnalysisPipeline(decision);
-    revalidatePath(decisionDetailPath(decision.id));
-    revalidatePath(routes.dashboard);
-    revalidatePath(routes.decisions);
+    revalidateDecisionPaths(decision.id);
   });
 }
 
@@ -177,11 +233,21 @@ export async function resumePendingAnalysis(decisionId: string): Promise<void> {
   const existingAnalysis = await getAnalysisByDecisionId(decisionId);
 
   if (existingAnalysis) {
+    await syncCompletedDecision(decisionId);
+    return;
+  }
+
+  if (isProcessingStale(decision)) {
+    const result = await runAnalysisPipeline(decision);
+
+    if (!result.success) {
+      await updateDecisionStatusWithRetry(decisionId, "failed");
+    }
+
+    revalidateDecisionPaths(decisionId);
     return;
   }
 
   await runAnalysisPipeline(decision);
-  revalidatePath(decisionDetailPath(decisionId));
-  revalidatePath(routes.dashboard);
-  revalidatePath(routes.decisions);
+  revalidateDecisionPaths(decisionId);
 }

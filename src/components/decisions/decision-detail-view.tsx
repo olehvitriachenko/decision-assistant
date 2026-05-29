@@ -51,11 +51,18 @@ export function DecisionDetailView({
       <DecisionAnalysisPoller status={decision.status} decisionId={decision.id} />
 
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <DecisionStatusBadge status={decision.status} />
-          <span className="text-sm text-muted-foreground">
-            Created {formatCreatedAt(decision.created_at)}
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {decision.status === "completed" ? (
+              <DecisionStatusBadge status={decision.status} />
+            ) : null}
+            <span className="text-sm text-muted-foreground">
+              Created {formatCreatedAt(decision.created_at)}
+            </span>
+          </div>
+          {decision.status !== "completed" ? (
+            <DecisionStatusBadge status={decision.status} size="md" />
+          ) : null}
         </div>
         <h1 className="text-3xl font-semibold tracking-tight text-balance">
           {decision.title}

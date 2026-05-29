@@ -24,6 +24,33 @@ function formatCreatedAt(value: string) {
   }).format(new Date(value));
 }
 
+function DecisionListBadges({ decision }: { decision: DecisionListItem }) {
+  const showStatus = decision.status !== "completed";
+  const showCategory = Boolean(decision.analysis_category);
+  const showSupport = decision.analysis_confidence !== null;
+
+  if (!showStatus && !showCategory && !showSupport) {
+    return null;
+  }
+
+  return (
+    <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+      {showStatus ? (
+        <DecisionStatusBadge status={decision.status} size="md" />
+      ) : null}
+      {showCategory ? (
+        <CategoryBadge category={decision.analysis_category!} size="md" />
+      ) : null}
+      {showSupport ? (
+        <SupportScoreBadge
+          confidence={decision.analysis_confidence!}
+          size="md"
+        />
+      ) : null}
+    </div>
+  );
+}
+
 export function DecisionsList({
   decisions,
   hasActiveFilters = false,
@@ -71,32 +98,25 @@ export function DecisionsList({
             size="sm"
             className="border-border/60 bg-card/60 backdrop-blur-sm transition-all duration-200 hover:border-foreground/20 hover:bg-muted/25 hover:shadow-sm active:scale-[0.998]"
           >
-            <CardHeader className="gap-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 space-y-1.5">
-                  <CardTitle className="truncate text-base transition-colors group-hover:text-foreground">
+            <CardHeader className="gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <CardTitle className="line-clamp-2 text-base leading-snug transition-colors group-hover:text-foreground">
                     {decision.title}
                   </CardTitle>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <CardDescription>
-                      Created {formatCreatedAt(decision.created_at)}
-                    </CardDescription>
-                    <span className="text-muted-foreground/40" aria-hidden="true">
-                      ·
-                    </span>
-                    <DecisionStatusBadge status={decision.status} />
-                  </div>
+                  <CardDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span>Created {formatCreatedAt(decision.created_at)}</span>
+                    {decision.status === "completed" ? (
+                      <>
+                        <span className="text-muted-foreground/40" aria-hidden="true">
+                          ·
+                        </span>
+                        <DecisionStatusBadge status={decision.status} />
+                      </>
+                    ) : null}
+                  </CardDescription>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                  {decision.analysis_category ? (
-                    <CategoryBadge category={decision.analysis_category} />
-                  ) : null}
-                  {decision.analysis_confidence !== null ? (
-                    <SupportScoreBadge
-                      confidence={decision.analysis_confidence}
-                    />
-                  ) : null}
-                </div>
+                <DecisionListBadges decision={decision} />
               </div>
               <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                 View details

@@ -2,30 +2,52 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 import { resumePendingAnalysis } from "@/lib/actions/decisions";
 import type { DecisionStatus } from "@/lib/types/decision";
 
 const POLL_INTERVAL_MS = 2500;
 
+function useProcessingRecovery(decisionIds: string[]) {
+  const decisionIdsKey = decisionIds.join(",");
+
+  useEffect(() => {
+    if (decisionIds.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function recover() {
+      for (const decisionId of decisionIds) {
+        if (cancelled) {
+          return;
+        }
+
+        await resumePendingAnalysis(decisionId);
+      }
+    }
+
+    void recover();
+
+    const interval = window.setInterval(() => {
+      void recover();
+    }, POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [decisionIds, decisionIdsKey]);
+}
+
 export function DecisionsProcessingWatcher({
   decisionIds,
 }: {
   decisionIds: string[];
 }) {
-  const resumedIds = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    for (const decisionId of decisionIds) {
-      if (resumedIds.current.has(decisionId)) {
-        continue;
-      }
-
-      resumedIds.current.add(decisionId);
-      void resumePendingAnalysis(decisionId);
-    }
-  }, [decisionIds]);
+  useProcessingRecovery(decisionIds);
 
   return <PageRefreshPoller enabled={decisionIds.length > 0} />;
 }
@@ -55,20 +77,9 @@ export function DecisionAnalysisPoller({
   status: DecisionStatus;
   decisionId?: string;
 }) {
-  const resumeAttempted = useRef(false);
-
-  useEffect(() => {
-    if (
-      status !== "processing" ||
-      !decisionId ||
-      resumeAttempted.current
-    ) {
-      return;
-    }
-
-    resumeAttempted.current = true;
-    void resumePendingAnalysis(decisionId);
-  }, [status, decisionId]);
+  useProcessingRecovery(
+    status === "processing" && decisionId ? [decisionId] : []
+  );
 
   return <PageRefreshPoller enabled={status === "processing"} />;
 }
