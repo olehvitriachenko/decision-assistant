@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
@@ -14,12 +13,12 @@ import {
   getDecisionsByUserIdPaginated,
 } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
+import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
 import { DecisionsPagination } from "@/components/decisions/decisions-pagination";
 import { DecisionsStats } from "@/components/decisions/decisions-stats";
 import { DecisionsToolbar } from "@/components/decisions/decisions-toolbar";
 import { PageContainer } from "@/components/layout/page-container";
-import { Button } from "@/components/ui/button";
 
 function parsePageParam(value: string | undefined) {
   const page = Number(value ?? "1");
@@ -65,21 +64,20 @@ export default async function DecisionsPage({
     redirect(decisionsListHref({ sort: query.sort, status: query.status, category: query.category }));
   }
 
+  const processingDecisionIds = result.decisions
+    .filter((decision) => decision.status === "processing")
+    .map((decision) => decision.id);
+
   return (
     <PageContainer>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            All decisions
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {result.total} {result.total === 1 ? "decision" : "decisions"}{" "}
-            total
-          </p>
-        </div>
-        <Button asChild variant="outline" size="sm" className="w-fit">
-          <Link href={routes.dashboard}>Back to dashboard</Link>
-        </Button>
+      <DecisionsProcessingWatcher decisionIds={processingDecisionIds} />
+      <div className="space-y-1">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          All decisions
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {result.total} {result.total === 1 ? "decision" : "decisions"} total
+        </p>
       </div>
 
       <section className="space-y-6">

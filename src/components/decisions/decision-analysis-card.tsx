@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
@@ -21,30 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-function AnalysisLoadingState() {
-  return (
-    <div
-      className="flex flex-col items-center justify-center gap-4 py-10 text-center"
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <span className="flex size-12 items-center justify-center rounded-full border border-border/60 bg-muted/20">
-        <Loader2
-          className="size-5 animate-spin text-foreground"
-          aria-hidden="true"
-        />
-      </span>
-      <div className="space-y-1">
-        <p className="font-medium">Re-analyzing your decision</p>
-        <p className="text-sm text-muted-foreground">
-          This usually takes a few seconds. Please keep this tab open.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function DecisionAnalysisCard({
   decision,
@@ -72,16 +48,6 @@ export function DecisionAnalysisCard({
     });
   }
 
-  if (isPending) {
-    return (
-      <Card>
-        <CardContent>
-          <AnalysisLoadingState />
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (decision.status === "failed" && !analysis) {
     return (
       <Card className="border-destructive/30 bg-destructive/5">
@@ -101,10 +67,11 @@ export function DecisionAnalysisCard({
             type="button"
             variant="outline"
             className="w-full sm:w-auto"
+            disabled={isPending}
             onClick={handleReanalyze}
           >
             <RefreshCw className="size-4" aria-hidden="true" />
-            Retry analysis
+            {isPending ? "Starting analysis..." : "Retry analysis"}
           </Button>
         </CardFooter>
       </Card>
@@ -191,10 +158,11 @@ export function DecisionAnalysisCard({
           type="button"
           variant="outline"
           className="w-full sm:w-auto"
+          disabled={isPending}
           onClick={handleReanalyze}
         >
           <RefreshCw className="size-4" aria-hidden="true" />
-          Re-analyze
+          {isPending ? "Starting analysis..." : "Re-analyze"}
         </Button>
       </CardFooter>
     </Card>

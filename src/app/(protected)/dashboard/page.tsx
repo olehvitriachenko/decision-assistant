@@ -5,6 +5,7 @@ import { routes } from "@/lib/config/routes";
 import { signOut } from "@/lib/actions/auth";
 import { getDecisionsByUserIdPaginated } from "@/lib/db/decisions";
 import { getUser } from "@/lib/supabase/auth";
+import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,13 @@ export default async function DashboardPage() {
   );
 
   const showViewAll = total > DASHBOARD_PREVIEW_LIMIT;
+  const processingDecisionIds = decisions
+    .filter((decision) => decision.status === "processing")
+    .map((decision) => decision.id);
 
   return (
     <PageContainer>
+      <DecisionsProcessingWatcher decisionIds={processingDecisionIds} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>

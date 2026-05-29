@@ -1,9 +1,13 @@
 "use server";
 
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createAnalysis } from "@/lib/db/analyses";
+import {
+  createAnalysis,
+  getAnalysisByDecisionId,
+} from "@/lib/db/analyses";
 import {
   createDecision as createDecisionRecord,
   getDecisionById,
@@ -43,6 +47,14 @@ function parseDecisionFormData(formData: FormData) {
 async function runAnalysisPipeline(
   decision: Decision
 ): Promise<{ success: true } | { success: false }> {
+  const current = await getDecisionById(decision.id);
+
+  if (!current || current.status !== "processing") {
+    return current?.status === "completed"
+      ? { success: true }
+      : { success: false };
+  }
+
   try {
     const analysis = await analyzeDecision({
       title: decision.title,
@@ -73,6 +85,15 @@ async function runAnalysisPipeline(
   }
 }
 
+function scheduleAnalysisInBackground(decision: Decision) {
+  after(async () => {
+    await runAnalysisPipeline(decision);
+    revalidatePath(decisionDetailPath(decision.id));
+    revalidatePath(routes.dashboard);
+    revalidatePath(routes.decisions);
+  });
+}
+
 export async function reanalyzeDecision(
   decisionId: string
 ): Promise<ReanalyzeDecisionActionState> {
@@ -99,15 +120,7 @@ export async function reanalyzeDecision(
     };
   }
 
-  const result = await runAnalysisPipeline(decision);
-
-  revalidatePath(decisionDetailPath(decisionId));
-
-  if (!result.success) {
-    return {
-      error: "Analysis failed. Please try again.",
-    };
-  }
+  scheduleAnalysisInBackground(decision);
 
   return {};
 }
@@ -143,7 +156,32 @@ export async function createDecision(
     };
   }
 
-  await runAnalysisPipeline(decision);
+  scheduleAnalysisInBackground(decision);
 
   redirect(decisionDetailPath(decision.id));
+}
+
+export async function resumePendingAnalysis(decisionId: string): Promise<void> {
+  const user = await getUser();
+
+  if (!user) {
+    return;
+  }
+
+  const decision = await getDecisionById(decisionId);
+
+  if (!decision || decision.user_id !== user.id || decision.status !== "processing") {
+    return;
+  }
+
+  const existingAnalysis = await getAnalysisByDecisionId(decisionId);
+
+  if (existingAnalysis) {
+    return;
+  }
+
+  await runAnalysisPipeline(decision);
+  revalidatePath(decisionDetailPath(decisionId));
+  revalidatePath(routes.dashboard);
+  revalidatePath(routes.decisions);
 }

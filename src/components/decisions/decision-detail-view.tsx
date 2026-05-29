@@ -1,6 +1,10 @@
 import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
 import { DecisionAnalysisCard } from "@/components/decisions/decision-analysis-card";
+import {
+  DecisionAnalysisPoller,
+  DecisionProcessingCard,
+} from "@/components/decisions/decision-analysis-poller";
 import { DecisionStatusBadge } from "@/components/decisions/decision-badges";
 import {
   Card,
@@ -44,6 +48,8 @@ export function DecisionDetailView({
 }) {
   return (
     <div className="space-y-6">
+      <DecisionAnalysisPoller status={decision.status} decisionId={decision.id} />
+
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <DecisionStatusBadge status={decision.status} />
@@ -76,18 +82,9 @@ export function DecisionDetailView({
         </CardContent>
       </Card>
 
-      {decision.status === "processing" ? (
-        <Card className="border-dashed bg-muted/20">
-          <CardHeader>
-            <CardTitle className="text-base">Analysis in progress</CardTitle>
-            <CardDescription>
-              AI is reviewing your decision. Refresh the page in a moment.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : null}
+      {decision.status === "processing" ? <DecisionProcessingCard /> : null}
 
-      {(analysis || decision.status === "failed") ? (
+      {decision.status !== "processing" && (analysis || decision.status === "failed") ? (
         <DecisionAnalysisCard decision={decision} analysis={analysis} />
       ) : null}
     </div>
