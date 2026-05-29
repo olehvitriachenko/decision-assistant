@@ -30,14 +30,14 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
-      <CardHeader>
+      <CardHeader className="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
         <CardTitle>Sign in</CardTitle>
         <CardDescription>
           Enter your email and password to access your dashboard.
         </CardDescription>
       </CardHeader>
       <form action={formAction}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 px-6 sm:px-8">
           {state.error ? (
             <p className="text-sm text-destructive" role="alert">
               {state.error}
@@ -80,8 +80,8 @@ export function LoginForm() {
             ))}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 border-t-0 bg-transparent p-4 pt-0">
-          <Button type="submit" className="w-full" disabled={isPending}>
+        <CardFooter className="flex flex-col gap-5 border-t-0 bg-transparent px-6 pt-2 pb-6 sm:px-8 sm:pb-8">
+          <Button type="submit" className="h-10 w-full" disabled={isPending}>
             {isPending ? "Signing in..." : "Sign in"}
           </Button>
           <p className="text-sm text-muted-foreground">

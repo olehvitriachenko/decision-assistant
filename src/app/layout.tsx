@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { AppHeader } from "@/components/layout/app-header";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "./globals.css";
@@ -40,7 +39,6 @@ export default function RootLayout({
               aria-hidden="true"
               className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.97_0_0)_0%,transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,oklch(0.22_0.02_264)_0%,transparent_55%)]"
             />
-            <AppHeader />
             <main className="relative flex flex-1 flex-col">{children}</main>
           </div>
         </ThemeProvider>

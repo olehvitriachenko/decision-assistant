@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
+import { AppHeader } from "@/components/layout/app-header";
 
 export default async function ProtectedLayout({
   children,
@@ -14,5 +15,10 @@ export default async function ProtectedLayout({
     redirect(routes.login);
   }
 
-  return children;
+  return (
+    <>
+      <AppHeader />
+      {children}
+    </>
+  );
 }
