@@ -11,7 +11,11 @@ export type Decision = {
   created_at: string;
 };
 
-export type DecisionListItem = Pick<
-  Decision,
-  "id" | "title" | "status" | "created_at"
->;
+export type DecisionListItem = {
+  id: string;
+  title: string;
+  status: DecisionStatus;
+  created_at: string;
+  analysis_category: string | null;
+  analysis_confidence: number | null;
+};

@@ -1,22 +1,23 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { routes } from "@/lib/config/routes";
+import {
+  decisionsListHref,
+  type DecisionListQuery,
+} from "@/lib/config/decision-list-params";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-function decisionsPageHref(page: number) {
-  return page <= 1 ? routes.decisions : `${routes.decisions}?page=${page}`;
-}
 
 export function DecisionsPagination({
   page,
   totalPages,
   total,
+  query,
 }: {
   page: number;
   totalPages: number;
   total: number;
+  query: DecisionListQuery;
 }) {
   if (totalPages <= 1) {
     return null;
@@ -47,7 +48,7 @@ export function DecisionsPagination({
               Previous
             </span>
           ) : (
-            <Link href={decisionsPageHref(page - 1)}>
+            <Link href={decisionsListHref({ page: page - 1, ...query })}>
               <ChevronLeft className="size-4" aria-hidden="true" />
               Previous
             </Link>
@@ -64,7 +65,7 @@ export function DecisionsPagination({
               className={cn("min-w-8")}
             >
               <Link
-                href={decisionsPageHref(pageNumber)}
+                href={decisionsListHref({ page: pageNumber, ...query })}
                 aria-current={pageNumber === page ? "page" : undefined}
               >
                 {pageNumber}
@@ -86,7 +87,7 @@ export function DecisionsPagination({
               <ChevronRight className="size-4" aria-hidden="true" />
             </span>
           ) : (
-            <Link href={decisionsPageHref(page + 1)}>
+            <Link href={decisionsListHref({ page: page + 1, ...query })}>
               Next
               <ChevronRight className="size-4" aria-hidden="true" />
             </Link>

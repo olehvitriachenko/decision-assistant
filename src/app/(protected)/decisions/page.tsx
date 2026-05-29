@@ -1,6 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
+import {
+  decisionsListHref,
+  hasActiveDecisionListFilters,
+  parseDecisionListQuery,
+} from "@/lib/config/decision-list-params";
 import { routes } from "@/lib/config/routes";
 import {
   DECISIONS_PAGE_SIZE,
@@ -9,6 +15,7 @@ import {
 import { getUser } from "@/lib/supabase/auth";
 import { DecisionsList } from "@/components/decisions/decisions-list";
 import { DecisionsPagination } from "@/components/decisions/decisions-pagination";
+import { DecisionsToolbar } from "@/components/decisions/decisions-toolbar";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
 
@@ -25,7 +32,12 @@ function parsePageParam(value: string | undefined) {
 export default async function DecisionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    sort?: string;
+    status?: string;
+    category?: string;
+  }>;
 }) {
   const user = await getUser();
 
@@ -35,15 +47,17 @@ export default async function DecisionsPage({
 
   const params = await searchParams;
   const page = parsePageParam(params.page);
+  const query = parseDecisionListQuery(params);
 
   const result = await getDecisionsByUserIdPaginated(
     user.id,
     page,
-    DECISIONS_PAGE_SIZE
+    DECISIONS_PAGE_SIZE,
+    query
   );
 
   if (page > result.totalPages && result.total > 0) {
-    redirect(routes.decisions);
+    redirect(decisionsListHref({ sort: query.sort, status: query.status, category: query.category }));
   }
 
   return (
@@ -64,11 +78,18 @@ export default async function DecisionsPage({
       </div>
 
       <section className="space-y-6">
-        <DecisionsList decisions={result.decisions} />
+        <Suspense fallback={null}>
+          <DecisionsToolbar query={result.query} />
+        </Suspense>
+        <DecisionsList
+          decisions={result.decisions}
+          hasActiveFilters={hasActiveDecisionListFilters(query)}
+        />
         <DecisionsPagination
           page={result.page}
           totalPages={result.totalPages}
           total={result.total}
+          query={result.query}
         />
       </section>
     </PageContainer>

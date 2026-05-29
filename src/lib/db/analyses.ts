@@ -31,6 +31,45 @@ export async function createAnalysis(
   };
 }
 
+export async function getLatestAnalysesByDecisionIds(
+  decisionIds: string[]
+): Promise<
+  Map<string, { category: string; confidence: number; created_at: string }>
+> {
+  if (decisionIds.length === 0) {
+    return new Map();
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from(analysesTableName)
+    .select("decision_id, category, confidence, created_at")
+    .in("decision_id", decisionIds)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const latestByDecisionId = new Map<
+    string,
+    { category: string; confidence: number; created_at: string }
+  >();
+
+  for (const row of data ?? []) {
+    if (!latestByDecisionId.has(row.decision_id)) {
+      latestByDecisionId.set(row.decision_id, {
+        category: row.category,
+        confidence: row.confidence,
+        created_at: row.created_at,
+      });
+    }
+  }
+
+  return latestByDecisionId;
+}
+
 export async function getAnalysisByDecisionId(
   decisionId: string
 ): Promise<Analysis | null> {

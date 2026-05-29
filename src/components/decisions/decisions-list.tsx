@@ -3,10 +3,15 @@ import { ArrowRight, Inbox, Plus } from "lucide-react";
 
 import { decisionDetailPath, routes } from "@/lib/config/routes";
 import type { DecisionListItem } from "@/lib/types/decision";
-import { DecisionStatusBadge } from "@/components/decisions/decision-badges";
+import {
+  CategoryBadge,
+  ConfidenceBadge,
+  DecisionStatusBadge,
+} from "@/components/decisions/decision-badges";
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -19,26 +24,37 @@ function formatCreatedAt(value: string) {
   }).format(new Date(value));
 }
 
-export function DecisionsList({ decisions }: { decisions: DecisionListItem[] }) {
+export function DecisionsList({
+  decisions,
+  hasActiveFilters = false,
+}: {
+  decisions: DecisionListItem[];
+  hasActiveFilters?: boolean;
+}) {
   if (decisions.length === 0) {
     return (
       <Card className="border-dashed bg-muted/20">
-        <CardHeader className="items-center py-12 text-center">
-          <span className="mb-4 flex size-12 items-center justify-center rounded-full border border-border/60 bg-background">
+        <CardContent className="flex flex-col items-center px-6 py-14 text-center">
+          <span className="flex size-12 items-center justify-center rounded-full border border-border/60 bg-background">
             <Inbox className="size-5 text-muted-foreground" aria-hidden="true" />
           </span>
-          <CardTitle>No decisions yet</CardTitle>
-          <CardDescription className="max-w-sm">
-            Start your first decision analysis. AI will help you spot biases
-            and alternatives you might have missed.
+          <CardTitle className="mt-4">
+            {hasActiveFilters ? "No matching decisions" : "No decisions yet"}
+          </CardTitle>
+          <CardDescription className="mt-2 max-w-sm text-balance">
+            {hasActiveFilters
+              ? "Try adjusting your sort or filter settings to see more results."
+              : "Start your first decision analysis. AI will help you spot biases and alternatives you might have missed."}
           </CardDescription>
-          <Button asChild className="mt-6">
-            <Link href={routes.decisionsNew}>
-              <Plus className="size-4" aria-hidden="true" />
-              New Decision
-            </Link>
-          </Button>
-        </CardHeader>
+          {!hasActiveFilters ? (
+            <Button asChild className="mt-6">
+              <Link href={routes.decisionsNew}>
+                <Plus className="size-4" aria-hidden="true" />
+                New Decision
+              </Link>
+            </Button>
+          ) : null}
+        </CardContent>
       </Card>
     );
   }
@@ -65,7 +81,15 @@ export function DecisionsList({ decisions }: { decisions: DecisionListItem[] }) 
                     Created {formatCreatedAt(decision.created_at)}
                   </CardDescription>
                 </div>
-                <DecisionStatusBadge status={decision.status} />
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                  {decision.analysis_category ? (
+                    <CategoryBadge category={decision.analysis_category} />
+                  ) : null}
+                  {decision.analysis_confidence !== null ? (
+                    <ConfidenceBadge confidence={decision.analysis_confidence} />
+                  ) : null}
+                  <DecisionStatusBadge status={decision.status} />
+                </div>
               </div>
               <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                 View details
