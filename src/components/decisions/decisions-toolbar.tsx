@@ -161,7 +161,7 @@ export function DecisionsToolbar({
                 {decisionCategoryFilterLabels[query.category]}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="min-w-[var(--radix-select-trigger-width)] sm:min-w-72">
+            <SelectContent>
               {categoryFilterOptions.map((option) => (
                 <SelectItem
                   key={option.slug}
