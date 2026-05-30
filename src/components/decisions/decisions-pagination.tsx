@@ -28,14 +28,14 @@ export function DecisionsPagination({
 
   return (
     <nav
-      className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left"
       aria-label={m.decisions.pagination.ariaLabel}
     >
       <p className="text-sm text-muted-foreground">
         {m.decisions.pagination.pageInfo(page, totalPages, total)}
       </p>
 
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
         <Button
           asChild
           variant="outline"
