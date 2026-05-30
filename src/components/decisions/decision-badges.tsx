@@ -15,7 +15,7 @@ const statusBadgeClassNames: Record<DecisionStatus, string> = {
   failed:
     "border-destructive/30 bg-destructive/10 font-medium text-destructive dark:bg-destructive/20",
   completed:
-    "border-border/40 bg-transparent font-normal text-muted-foreground",
+    "border-border/70 bg-muted/50 font-medium text-foreground/75 dark:border-border/40 dark:bg-transparent dark:font-normal dark:text-muted-foreground",
 };
 
 const badgeAlignClass = "inline-flex items-center justify-center leading-none py-0";
@@ -63,8 +63,8 @@ export function CategoryBadge({
         badgeAlignClass,
         size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
         variant === "prominent"
-          ? "border-primary/40 bg-primary/15 font-semibold text-primary shadow-sm dark:border-primary/35 dark:bg-primary/20 dark:text-primary"
-          : "border-border/60 bg-background/60 backdrop-blur-sm",
+          ? "border-primary/35 bg-primary/10 font-semibold text-primary shadow-sm dark:border-primary/35 dark:bg-primary/20 dark:text-primary"
+          : "border-border/70 bg-background shadow-sm dark:border-border/60 dark:bg-background/60 dark:shadow-none dark:backdrop-blur-sm",
         variant === "prominent" && size === "md" && "h-7 px-3"
       )}
     >

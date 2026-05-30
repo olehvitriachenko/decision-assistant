@@ -6,6 +6,11 @@ import { useEffect } from "react";
 
 import { resumePendingAnalysis } from "@/lib/actions/decisions";
 import { m } from "@/lib/i18n/uk";
+import {
+  dashedSurfaceClassName,
+  iconSurfaceClassName,
+} from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import type { DecisionStatus } from "@/lib/types/decision";
 
 const POLL_INTERVAL_MS = 2500;
@@ -87,14 +92,14 @@ export function DecisionAnalysisPoller({
 
 export function DecisionProcessingCard() {
   return (
-    <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-6">
+    <div className={cn("rounded-xl p-6", dashedSurfaceClassName)}>
       <div
         className="flex flex-col items-center justify-center gap-4 py-6 text-center"
         role="status"
         aria-live="polite"
         aria-busy="true"
       >
-        <span className="flex size-12 items-center justify-center rounded-full border border-border/60 bg-background/80 backdrop-blur-sm">
+        <span className={cn("flex size-12 items-center justify-center rounded-full", iconSurfaceClassName)}>
           <Loader2
             className="size-5 animate-spin text-foreground"
             aria-hidden="true"

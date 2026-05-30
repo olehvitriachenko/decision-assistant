@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { elevatedSurfaceClassName, iconSurfaceClassName, softSurfaceClassName } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/utils";
 
 export function EmptyStateCard({
@@ -29,17 +30,17 @@ export function EmptyStateCard({
   return (
     <Card
       className={cn(
-        "backdrop-blur-sm",
         variant === "dashed"
-          ? "border-dashed border-border/60 bg-muted/20"
-          : "border-border/60 bg-card/50"
+          ? cn("border-dashed", softSurfaceClassName)
+          : elevatedSurfaceClassName
       )}
     >
       <CardContent className="flex flex-col items-center gap-4 px-6 py-10 text-center">
         <span
           className={cn(
-            "flex size-12 items-center justify-center border border-border/60 bg-muted/30",
-            iconRounded === "full" ? "rounded-full bg-background/80" : "rounded-2xl"
+            "flex size-12 items-center justify-center",
+            iconSurfaceClassName,
+            iconRounded === "full" ? "rounded-full" : "rounded-2xl"
           )}
         >
           <Icon className="size-5 text-muted-foreground" aria-hidden="true" />

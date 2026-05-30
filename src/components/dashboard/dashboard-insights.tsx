@@ -4,6 +4,8 @@ import { getBiasDescriptionByKey } from "@/lib/bias-descriptions";
 import type { DecisionDashboardInsights } from "@/lib/db/decisions";
 import { formatAnalyzedDecisionCount } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
+import { elevatedSurfaceClassName, iconSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import { supportLevelLabels } from "@/lib/support-score";
 import { FrequencyBarList, formatSupportDistributionValue } from "@/components/dashboard/frequency-bar-list";
 import { EmptyStateCard } from "@/components/layout/empty-state-card";
@@ -83,10 +85,10 @@ export function DashboardInsights({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="border-border/60 bg-card/50 backdrop-blur-sm">
+        <Card className={elevatedSurfaceClassName}>
           <CardHeader className="gap-3">
             <div className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-background/70">
+              <span className={cn("flex size-8 items-center justify-center rounded-lg", iconSurfaceClassName)}>
                 <Tags className="size-4 text-primary" aria-hidden="true" />
               </span>
               <div className="space-y-0.5">
@@ -107,10 +109,10 @@ export function DashboardInsights({
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 bg-card/50 backdrop-blur-sm">
+        <Card className={elevatedSurfaceClassName}>
           <CardHeader className="gap-3">
             <div className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-background/70">
+              <span className={cn("flex size-8 items-center justify-center rounded-lg", iconSurfaceClassName)}>
                 <Brain className="size-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
               </span>
               <div className="space-y-0.5">
@@ -133,10 +135,10 @@ export function DashboardInsights({
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 bg-card/50 backdrop-blur-sm">
+        <Card className={elevatedSurfaceClassName}>
           <CardHeader className="gap-3">
             <div className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-background/70">
+              <span className={cn("flex size-8 items-center justify-center rounded-lg", iconSurfaceClassName)}>
                 <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </span>
               <div className="space-y-0.5">

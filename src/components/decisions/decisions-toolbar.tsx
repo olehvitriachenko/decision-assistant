@@ -22,6 +22,8 @@ import {
   hasActiveDecisionListFilters,
 } from "@/lib/config/decision-list-params";
 import { getCategoryFilterOptions } from "@/lib/categories/registry";
+import { elevatedSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import type { DecisionBiasFilterOption } from "@/lib/db/decisions";
 import { m } from "@/lib/i18n/uk";
 import { Badge } from "@/components/ui/badge";
@@ -102,7 +104,7 @@ export function DecisionsToolbar({
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-border/60 bg-card/50 p-4">
+    <div className={cn("space-y-4 rounded-xl border p-4", elevatedSurfaceClassName)}>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-2">
           <Label htmlFor="decisions-sort">{m.decisions.toolbar.sortBy}</Label>

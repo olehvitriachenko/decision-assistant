@@ -40,7 +40,7 @@ export default function RootLayout({
           <div className="relative flex min-h-screen flex-col">
             <div
               aria-hidden="true"
-              className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.97_0_0)_0%,transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,oklch(0.22_0.02_264)_0%,transparent_55%)]"
+              className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.93_0.02_264)_0%,transparent_55%)] dark:bg-[radial-gradient(ellipse_at_top,oklch(0.22_0.02_264)_0%,transparent_55%)]"
             />
             <main className="relative flex flex-1 flex-col">{children}</main>
           </div>

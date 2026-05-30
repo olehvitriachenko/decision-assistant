@@ -5,6 +5,8 @@ import { decisionDetailPath, routes } from "@/lib/config/routes";
 import { formatDateTime } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
 import type { DecisionListItem } from "@/lib/types/decision";
+import { elevatedSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import {
   CategoryBadge,
   DecisionStatusBadge,
@@ -64,7 +66,10 @@ export function DecisionsList({
         >
           <Card
             size="sm"
-            className="border-border/60 bg-card/60 backdrop-blur-sm transition-all duration-200 hover:border-foreground/20 hover:bg-muted/25 hover:shadow-sm active:scale-[0.998]"
+            className={cn(
+              elevatedSurfaceClassName,
+              "transition-all duration-200 hover:border-foreground/15 hover:shadow-md dark:hover:border-foreground/20 dark:hover:bg-muted/25 dark:hover:shadow-sm active:scale-[0.998]"
+            )}
           >
             <CardHeader className="gap-2.5">
               <div className="flex items-start justify-between gap-3">

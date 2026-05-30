@@ -6,6 +6,8 @@ import { useActionState, type KeyboardEvent } from "react";
 import { routes } from "@/lib/config/routes";
 import { signUp, type AuthActionState } from "@/lib/actions/auth";
 import { m } from "@/lib/i18n/uk";
+import { elevatedSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,7 +41,7 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur-sm">
+    <Card className={cn("w-full max-w-md", elevatedSurfaceClassName)}>
       <CardHeader className="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
         <CardTitle>{m.auth.createAccount}</CardTitle>
         <CardDescription>{m.auth.createAccountDescription}</CardDescription>

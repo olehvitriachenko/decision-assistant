@@ -6,6 +6,7 @@ import { LayoutDashboard, List, Menu, Plus, Sparkles } from "lucide-react";
 
 import { routes } from "@/lib/config/routes";
 import { m } from "@/lib/i18n/uk";
+import { elevatedSurfaceClassName, headerSurfaceClassName, iconSurfaceClassName } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
@@ -43,13 +44,13 @@ export function AppHeader({ userEmail }: { userEmail: string }) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <header className={cn("sticky top-0 z-50 border-b", headerSurfaceClassName)}>
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           href={routes.dashboard}
           className="flex items-center gap-2.5 rounded-lg pr-2 transition-opacity hover:opacity-80"
         >
-          <span className="flex size-8 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
+          <span className={cn("flex size-8 items-center justify-center rounded-lg", iconSurfaceClassName)}>
             <Sparkles className="size-4 text-foreground" aria-hidden="true" />
           </span>
           <span className="hidden font-semibold tracking-tight sm:inline">

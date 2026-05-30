@@ -2,6 +2,7 @@ import { BarChart3, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-reac
 
 import type { DecisionSupportStats } from "@/lib/db/decisions";
 import { m } from "@/lib/i18n/uk";
+import { elevatedSurfaceClassName, iconSurfaceClassName } from "@/lib/ui/surface-classes";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,7 @@ export function DecisionsStats({ stats }: { stats: DecisionSupportStats }) {
         return (
           <Card
             key={card.key}
-            className="overflow-hidden border-border/60 bg-card/50 backdrop-blur-sm"
+            className={cn("overflow-hidden", elevatedSurfaceClassName)}
           >
             <CardContent className="relative p-4">
               <div
@@ -68,7 +69,7 @@ export function DecisionsStats({ stats }: { stats: DecisionSupportStats }) {
                     {value}
                   </p>
                 </div>
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background/70 backdrop-blur-sm">
+                <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", iconSurfaceClassName)}>
                   <Icon className={cn("size-4", card.iconClass)} aria-hidden="true" />
                 </span>
               </div>

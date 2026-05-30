@@ -44,7 +44,7 @@ export function CategoryHint({
         "inline-flex items-center justify-center leading-none py-0",
         prefersHover && "underline decoration-dotted underline-offset-4",
         size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
-        "border-border/60 bg-background/60 backdrop-blur-sm"
+        "border-border/70 bg-background shadow-sm dark:border-border/60 dark:bg-background/60 dark:shadow-none"
       )}
     >
       {label}

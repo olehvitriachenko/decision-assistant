@@ -4,6 +4,8 @@ import { Sparkles } from "lucide-react";
 
 import { routes } from "@/lib/config/routes";
 import { m } from "@/lib/i18n/uk";
+import { elevatedSurfaceClassName, iconSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import { getUser } from "@/lib/supabase/auth";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
@@ -25,7 +27,7 @@ export default async function HomePage() {
   return (
     <PageContainer className="max-w-2xl justify-center py-16 sm:py-24">
       <div className="space-y-8 text-center">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-border/60 bg-muted/30">
+        <div className={cn("mx-auto flex size-14 items-center justify-center rounded-2xl", iconSurfaceClassName)}>
           <Sparkles className="size-6" aria-hidden="true" />
         </div>
         <div className="space-y-3">
@@ -36,7 +38,7 @@ export default async function HomePage() {
             {m.landing.subtitle}
           </p>
         </div>
-        <Card className="border-border/60 bg-card/80 text-left backdrop-blur-sm">
+        <Card className={cn("text-left", elevatedSurfaceClassName)}>
           <CardHeader>
             <CardTitle>{m.landing.getStarted}</CardTitle>
             <CardDescription>{m.landing.getStartedDescription}</CardDescription>

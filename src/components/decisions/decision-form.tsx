@@ -9,6 +9,8 @@ import {
 } from "@/lib/actions/decisions";
 import { m } from "@/lib/i18n/uk";
 import { isCreateDecisionFormFilled } from "@/lib/validations/decision";
+import { elevatedSurfaceClassName, headerSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -85,7 +87,7 @@ export function DecisionForm() {
   }
 
   return (
-    <Card className="w-full border-border/60 bg-card/80 backdrop-blur-sm">
+    <Card className={cn("w-full", elevatedSurfaceClassName)}>
       <CardHeader>
         <CardTitle className="text-base">{m.decisions.form.title}</CardTitle>
         <CardDescription>{m.decisions.form.description}</CardDescription>
@@ -199,7 +201,7 @@ export function DecisionForm() {
           </fieldset>
         </CardContent>
 
-        <CardFooter className="sticky bottom-0 border-t border-border/60 bg-card/95 p-4 backdrop-blur-sm">
+        <CardFooter className={cn("sticky bottom-0 border-t p-4", headerSurfaceClassName)}>
           <Button
             type="submit"
             size="lg"

@@ -1,5 +1,7 @@
 import { getBiasDescription } from "@/lib/bias-descriptions";
 import { m } from "@/lib/i18n/uk";
+import { softSurfaceClassName } from "@/lib/ui/surface-classes";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardDescription,
@@ -22,7 +24,7 @@ export function BiasInsightsList({ biases }: { biases: string[] }) {
         const info = getBiasDescription(bias);
 
         return (
-          <Card key={bias} size="sm" className="border-border/60 bg-muted/20">
+          <Card key={bias} size="sm" className={cn(softSurfaceClassName)}>
             <CardHeader className="gap-1.5">
               <CardTitle className="text-sm">{info.title}</CardTitle>
               {info.description ? (
