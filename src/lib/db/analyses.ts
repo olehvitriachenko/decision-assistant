@@ -22,7 +22,9 @@ export async function createAnalysis(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    const dbError = new Error(error.message) as Error & { code?: string };
+    dbError.code = error.code;
+    throw dbError;
   }
 
   return {

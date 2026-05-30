@@ -12,17 +12,16 @@ import {
 } from "@/lib/config/analysis";
 import {
   createAnalysis,
-  deleteAnalysesByDecisionId,
   getAnalysisByDecisionId,
 } from "@/lib/db/analyses";
 import {
-  bumpDecisionAnalysisGeneration,
   claimDecisionAnalysisLock,
   createDecision as createDecisionRecord,
   deleteDecisionById,
   getDecisionById,
   getDecisionByIdAdmin,
   releaseDecisionAnalysisLock,
+  resetDecisionAnalysis,
   updateDecisionStatus,
 } from "@/lib/db/decisions";
 import { analyzeDecision } from "@/lib/openai/analyze-decision";
@@ -129,6 +128,15 @@ async function isAnalysisGenerationCurrent(
   );
 }
 
+function isUniqueConstraintViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "23505"
+  );
+}
+
 async function runAnalysisPipeline(
   decision: Decision,
   options: { forceReanalysis?: boolean } = {}
@@ -200,7 +208,11 @@ async function runAnalysisPipeline(
     const updated = await updateDecisionStatusWithRetry(decision.id, "completed");
 
     return updated ? { success: true } : { success: false };
-  } catch {
+  } catch (error) {
+    if (isUniqueConstraintViolation(error)) {
+      return { success: false };
+    }
+
     if (await isAnalysisGenerationCurrent(decision.id, claimedGeneration)) {
       await updateDecisionStatusWithRetry(decision.id, "failed");
     }
@@ -237,9 +249,7 @@ export async function reanalyzeDecision(
   }
 
   try {
-    await deleteAnalysesByDecisionId(decisionId);
-    await bumpDecisionAnalysisGeneration(decisionId);
-    await updateDecisionStatus(decisionId, "processing");
+    await resetDecisionAnalysis(decisionId);
   } catch (error) {
     return {
       error:
