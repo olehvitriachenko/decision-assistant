@@ -3,6 +3,7 @@ import type { Decision } from "@/lib/types/decision";
 import { formatDateTime } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
 import { DecisionDeleteButton } from "@/components/decisions/decision-delete-button";
+import { DecisionsBackLink } from "@/components/decisions/decisions-back-link";
 import { DecisionAnalysisCard } from "@/components/decisions/decision-analysis-card";
 import {
   DecisionAnalysisPoller,
@@ -44,6 +45,7 @@ export function DecisionDetailView({
 }) {
   return (
     <div className="space-y-6">
+      <DecisionsBackLink />
       <DecisionAnalysisPoller status={decision.status} decisionId={decision.id} />
 
       <div className="space-y-3">
