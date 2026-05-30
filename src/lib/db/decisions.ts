@@ -1,20 +1,12 @@
 import {
-  type DecisionCategoryFilter,
   type DecisionListQuery,
-  type DecisionSortOption,
   DEFAULT_DECISION_LIST_QUERY,
-  matchesDecisionCategoryFilter,
-  statusFilterToDecisionStatus,
 } from "@/lib/config/decision-list-params";
 import { getCategoryLabel, getCategorySlug } from "@/lib/categories/registry";
 import { decisionsTableName } from "@/lib/config/database";
-import {
-  getLatestAnalysesByDecisionIds,
-  getLatestAnalysesWithBiasesByDecisionIds,
-} from "@/lib/db/analyses";
+import { getLatestAnalysesWithBiasesByDecisionIds } from "@/lib/db/analyses";
 import { normalizeBias } from "@/lib/normalize-bias";
 import { getSupportLevel } from "@/lib/support-score";
-import { getDecisionComplexityScore } from "@/lib/decision-complexity";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDecisionInput } from "@/lib/validations/decision";
@@ -59,13 +51,6 @@ export type DecisionBiasFilterOption = {
   key: string;
   label: string;
   count: number;
-};
-
-type AnalysisSummary = {
-  category: string;
-  confidence: number;
-  biases: string[];
-  created_at: string;
 };
 
 const DASHBOARD_INSIGHTS_LIMIT = 6;
@@ -140,179 +125,20 @@ type DecisionRow = Pick<
   "id" | "title" | "decision" | "status" | "created_at"
 >;
 
-function needsAnalysisAwareQuery(query: DecisionListQuery) {
-  return (
-    query.sort === "confidence_high" ||
-    query.sort === "confidence_low" ||
-    query.sort === "complexity_high" ||
-    query.sort === "complexity_low" ||
-    query.category !== "all" ||
-    query.bias !== "all"
-  );
-}
+type DecisionListRpcRow = DecisionRow & {
+  analysis_category: string | null;
+  analysis_confidence: number | null;
+  analysis_bias_count: number | null;
+  total_count: number;
+};
 
-function attachLatestAnalyses(
-  decisions: DecisionRow[],
-  analysesByDecisionId: Map<
-    string,
-    { category: string; confidence: number; created_at: string }
-  >
-): DecisionListItem[] {
-  return decisions.map((decision) => {
-    const analysis = analysesByDecisionId.get(decision.id);
-
-    return {
-      ...decision,
-      analysis_category: analysis?.category ?? null,
-      analysis_confidence: analysis?.confidence ?? null,
-      analysis_bias_count: null,
-    };
-  });
-}
-
-function attachLatestAnalysesWithBiases(
-  decisions: DecisionRow[],
-  analysesByDecisionId: Map<string, AnalysisSummary>
-): DecisionListItem[] {
-  return decisions.map((decision) => {
-    const analysis = analysesByDecisionId.get(decision.id);
-
-    return {
-      ...decision,
-      analysis_category: analysis?.category ?? null,
-      analysis_confidence: analysis?.confidence ?? null,
-      analysis_bias_count: analysis?.biases.length ?? null,
-    };
-  });
-}
-
-function filterByCategory(
-  decisions: DecisionListItem[],
-  category: DecisionCategoryFilter
-) {
-  if (category === "all") {
-    return decisions;
-  }
-
-  return decisions.filter((decision) =>
-    matchesDecisionCategoryFilter(decision.analysis_category, category)
-  );
-}
-
-function filterByBias(
-  decisions: DecisionListItem[],
-  biasFilter: string,
-  analysesByDecisionId: Map<string, AnalysisSummary>
-) {
-  if (biasFilter === "all") {
-    return decisions;
-  }
-
-  return decisions.filter((decision) => {
-    const analysis = analysesByDecisionId.get(decision.id);
-
-    if (!analysis) {
-      return false;
-    }
-
-    return analysis.biases.some((bias) => normalizeBias(bias)?.key === biasFilter);
-  });
-}
-
-function compareByCreatedAtDesc(a: DecisionListItem, b: DecisionListItem) {
-  return b.created_at.localeCompare(a.created_at);
-}
-
-function sortDecisions(
-  decisions: DecisionListItem[],
-  sort: DecisionSortOption
-) {
-  const sorted = [...decisions];
-
-  switch (sort) {
-    case "oldest":
-      return sorted.sort((a, b) => a.created_at.localeCompare(b.created_at));
-    case "confidence_high":
-      return sorted.sort((a, b) => {
-        const scoreDiff =
-          (b.analysis_confidence ?? -1) - (a.analysis_confidence ?? -1);
-
-        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
-      });
-    case "confidence_low":
-      return sorted.sort((a, b) => {
-        const scoreDiff =
-          (a.analysis_confidence ?? 101) - (b.analysis_confidence ?? 101);
-
-        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
-      });
-    case "complexity_high":
-      return sorted.sort((a, b) => {
-        const scoreDiff =
-          (getDecisionComplexityScore(
-            b.analysis_confidence,
-            b.analysis_bias_count
-          ) ?? -1) -
-          (getDecisionComplexityScore(
-            a.analysis_confidence,
-            a.analysis_bias_count
-          ) ?? -1);
-
-        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
-      });
-    case "complexity_low":
-      return sorted.sort((a, b) => {
-        const scoreDiff =
-          (getDecisionComplexityScore(
-            a.analysis_confidence,
-            a.analysis_bias_count
-          ) ?? 101) -
-          (getDecisionComplexityScore(
-            b.analysis_confidence,
-            b.analysis_bias_count
-          ) ?? 101);
-
-        return scoreDiff !== 0 ? scoreDiff : compareByCreatedAtDesc(a, b);
-      });
-    case "title_asc":
-      return sorted.sort((a, b) => a.title.localeCompare(b.title));
-    case "title_desc":
-      return sorted.sort((a, b) => b.title.localeCompare(a.title));
-    case "newest":
-    default:
-      return sorted.sort(compareByCreatedAtDesc);
-  }
-}
-
-function paginateDecisions<T>(items: T[], page: number, pageSize: number) {
-  const safePage = Math.max(1, page);
-  const from = (safePage - 1) * pageSize;
-
-  return {
-    items: items.slice(from, from + pageSize),
-    page: safePage,
-    total: items.length,
-    totalPages: Math.max(1, Math.ceil(items.length / pageSize)),
-  };
-}
-
-async function fetchDecisionRows(
-  userId: string,
-  query: DecisionListQuery
-): Promise<DecisionRow[]> {
+async function fetchDecisionRows(userId: string): Promise<DecisionRow[]> {
   const supabase = await createClient();
-  const status = statusFilterToDecisionStatus(query.status);
 
-  let request = supabase
+  const { data, error } = await supabase
     .from(decisionsTableName)
     .select("id, title, decision, status, created_at")
     .eq("user_id", userId);
-
-  if (status) {
-    request = request.eq("status", status);
-  }
-
-  const { data, error } = await request;
 
   if (error) {
     throw new Error(error.message);
@@ -321,85 +147,34 @@ async function fetchDecisionRows(
   return data ?? [];
 }
 
-async function getDecisionsWithAnalysisQuery(
+export async function getDecisionsByUserIdPaginated(
   userId: string,
   page: number,
-  pageSize: number,
-  query: DecisionListQuery
-): Promise<PaginatedDecisions> {
-  const decisions = await fetchDecisionRows(userId, query);
-  const analysesByDecisionId = await getLatestAnalysesWithBiasesByDecisionIds(
-    decisions.map((decision) => decision.id)
-  );
-
-  const enriched = attachLatestAnalysesWithBiases(decisions, analysesByDecisionId);
-  const filteredByCategory = filterByCategory(enriched, query.category);
-  const filtered = filterByBias(filteredByCategory, query.bias, analysesByDecisionId);
-  const sorted = sortDecisions(filtered, query.sort);
-  const paginated = paginateDecisions(sorted, page, pageSize);
-
-  return {
-    decisions: paginated.items,
-    total: paginated.total,
-    page: paginated.page,
-    pageSize,
-    totalPages: paginated.totalPages,
-    query,
-  };
-}
-
-async function getDecisionsWithSqlPagination(
-  userId: string,
-  page: number,
-  pageSize: number,
-  query: DecisionListQuery
+  pageSize = DECISIONS_PAGE_SIZE,
+  query: DecisionListQuery = DEFAULT_DECISION_LIST_QUERY
 ): Promise<PaginatedDecisions> {
   const supabase = await createClient();
   const safePage = Math.max(1, page);
-  const from = (safePage - 1) * pageSize;
-  const to = from + pageSize - 1;
-  const status = statusFilterToDecisionStatus(query.status);
 
-  let request = supabase
-    .from(decisionsTableName)
-    .select("id, title, decision, status, created_at", { count: "exact" })
-    .eq("user_id", userId);
-
-  if (status) {
-    request = request.eq("status", status);
-  }
-
-  switch (query.sort) {
-    case "oldest":
-      request = request.order("created_at", { ascending: true });
-      break;
-    case "title_asc":
-      request = request.order("title", { ascending: true });
-      break;
-    case "title_desc":
-      request = request.order("title", { ascending: false });
-      break;
-    case "newest":
-    default:
-      request = request.order("created_at", { ascending: false });
-      break;
-  }
-
-  const { data, error, count } = await request.range(from, to);
+  const { data, error } = await supabase.rpc("list_decisions_paginated", {
+    p_page: safePage,
+    p_page_size: pageSize,
+    p_sort: query.sort,
+    p_status: query.status,
+    p_category: query.category,
+    p_bias: query.bias,
+  });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  const analysesByDecisionId = await getLatestAnalysesByDecisionIds(
-    (data ?? []).map((decision) => decision.id)
-  );
-
-  const total = count ?? 0;
+  const rows = (data ?? []) as DecisionListRpcRow[];
+  const total = rows[0]?.total_count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return {
-    decisions: attachLatestAnalyses(data ?? [], analysesByDecisionId),
+    decisions: rows.map(({ total_count: _totalCount, ...decision }) => decision),
     total,
     page: safePage,
     pageSize,
@@ -408,80 +183,75 @@ async function getDecisionsWithSqlPagination(
   };
 }
 
-export async function getDecisionsByUserIdPaginated(
-  userId: string,
-  page: number,
-  pageSize = DECISIONS_PAGE_SIZE,
-  query: DecisionListQuery = DEFAULT_DECISION_LIST_QUERY
-): Promise<PaginatedDecisions> {
-  if (needsAnalysisAwareQuery(query)) {
-    return getDecisionsWithAnalysisQuery(userId, page, pageSize, query);
-  }
-
-  return getDecisionsWithSqlPagination(userId, page, pageSize, query);
-}
-
 export async function getDecisionBiasFilterOptions(
   userId: string
 ): Promise<DecisionBiasFilterOption[]> {
-  const decisions = await fetchDecisionRows(userId, DEFAULT_DECISION_LIST_QUERY);
-  const analysesByDecisionId = await getLatestAnalysesWithBiasesByDecisionIds(
-    decisions.map((decision) => decision.id)
-  );
+  void userId;
 
-  const biases: string[] = [];
+  const supabase = await createClient();
 
-  for (const analysis of analysesByDecisionId.values()) {
-    biases.push(...analysis.biases);
+  const { data, error } = await supabase.rpc("get_decision_bias_filter_options");
+
+  if (error) {
+    throw new Error(error.message);
   }
 
-  return countBiasFrequencies(biases);
+  return (data ?? [])
+    .map((row: { bias_key: string; bias_count: number }) => {
+      const normalized = normalizeBias(row.bias_key);
+
+      if (!normalized) {
+        return null;
+      }
+
+      return {
+        key: normalized.key,
+        label: normalized.label,
+        count: row.bias_count,
+      } satisfies DecisionBiasFilterOption;
+    })
+    .filter((option: DecisionBiasFilterOption | null): option is DecisionBiasFilterOption => {
+      return option !== null;
+    });
 }
 
 export async function getDecisionSupportStats(
   userId: string
 ): Promise<DecisionSupportStats> {
-  const decisions = await fetchDecisionRows(userId, DEFAULT_DECISION_LIST_QUERY);
-  const analysesByDecisionId = await getLatestAnalysesByDecisionIds(
-    decisions.map((decision) => decision.id)
-  );
+  void userId;
 
-  let highSupport = 0;
-  let mediumSupport = 0;
-  let lowSupport = 0;
+  const supabase = await createClient();
 
-  for (const decision of decisions) {
-    const confidence = analysesByDecisionId.get(decision.id)?.confidence;
+  const { data, error } = await supabase.rpc("get_decision_support_stats");
 
-    if (confidence === undefined) {
-      continue;
-    }
-
-    if (confidence >= 70) {
-      highSupport += 1;
-      continue;
-    }
-
-    if (confidence >= 40) {
-      mediumSupport += 1;
-      continue;
-    }
-
-    lowSupport += 1;
+  if (error) {
+    throw new Error(error.message);
   }
 
+  const row = (data?.[0] ?? {
+    total: 0,
+    high_support: 0,
+    medium_support: 0,
+    low_support: 0,
+  }) as {
+    total: number;
+    high_support: number;
+    medium_support: number;
+    low_support: number;
+  };
+
   return {
-    total: decisions.length,
-    highSupport,
-    mediumSupport,
-    lowSupport,
+    total: Number(row.total),
+    highSupport: Number(row.high_support),
+    mediumSupport: Number(row.medium_support),
+    lowSupport: Number(row.low_support),
   };
 }
 
 export async function getDecisionDashboardInsights(
   userId: string
 ): Promise<DecisionDashboardInsights> {
-  const decisions = await fetchDecisionRows(userId, DEFAULT_DECISION_LIST_QUERY);
+  const decisions = await fetchDecisionRows(userId);
   const analysesByDecisionId = await getLatestAnalysesWithBiasesByDecisionIds(
     decisions.map((decision) => decision.id)
   );
