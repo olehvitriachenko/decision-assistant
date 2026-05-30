@@ -1,24 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   decisionsListHref,
   type DecisionListQuery,
 } from "@/lib/config/decision-list-params";
+import { useDecisionsNavigation } from "@/components/decisions/decisions-navigation-context";
 import { m } from "@/lib/i18n/uk";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-function scrollDecisionsListToTop() {
-  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-}
-
-const paginationLinkProps = {
-  scroll: false as const,
-  onClick: scrollDecisionsListToTop,
-};
 
 export function DecisionsPagination({
   page,
@@ -31,11 +22,19 @@ export function DecisionsPagination({
   total: number;
   query: DecisionListQuery;
 }) {
+  const { navigate } = useDecisionsNavigation();
+
   if (totalPages <= 1) {
     return null;
   }
 
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+  function goToPage(nextPage: number) {
+    navigate(decisionsListHref({ page: nextPage, ...query }), {
+      scrollToTop: true,
+    });
+  }
 
   return (
     <nav
@@ -48,69 +47,40 @@ export function DecisionsPagination({
 
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         <Button
-          asChild
           variant="outline"
           size="sm"
           disabled={page <= 1}
           aria-disabled={page <= 1}
+          onClick={() => goToPage(page - 1)}
         >
-          {page <= 1 ? (
-            <span>
-              <ChevronLeft className="size-4" aria-hidden="true" />
-              {m.common.previous}
-            </span>
-          ) : (
-            <Link
-              href={decisionsListHref({ page: page - 1, ...query })}
-              {...paginationLinkProps}
-            >
-              <ChevronLeft className="size-4" aria-hidden="true" />
-              {m.common.previous}
-            </Link>
-          )}
+          <ChevronLeft className="size-4" aria-hidden="true" />
+          {m.common.previous}
         </Button>
 
         <div className="flex items-center gap-1">
           {pages.map((pageNumber) => (
             <Button
               key={pageNumber}
-              asChild
               variant={pageNumber === page ? "default" : "ghost"}
               size="sm"
               className={cn("min-w-8")}
+              aria-current={pageNumber === page ? "page" : undefined}
+              onClick={() => goToPage(pageNumber)}
             >
-              <Link
-                href={decisionsListHref({ page: pageNumber, ...query })}
-                aria-current={pageNumber === page ? "page" : undefined}
-                {...paginationLinkProps}
-              >
-                {pageNumber}
-              </Link>
+              {pageNumber}
             </Button>
           ))}
         </div>
 
         <Button
-          asChild
           variant="outline"
           size="sm"
           disabled={page >= totalPages}
           aria-disabled={page >= totalPages}
+          onClick={() => goToPage(page + 1)}
         >
-          {page >= totalPages ? (
-            <span>
-              {m.common.next}
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </span>
-          ) : (
-            <Link
-              href={decisionsListHref({ page: page + 1, ...query })}
-              {...paginationLinkProps}
-            >
-              {m.common.next}
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </Link>
-          )}
+          {m.common.next}
+          <ChevronRight className="size-4" aria-hidden="true" />
         </Button>
       </div>
     </nav>

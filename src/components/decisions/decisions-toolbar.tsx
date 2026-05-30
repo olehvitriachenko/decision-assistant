@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import {
   DEFAULT_DECISION_BIAS_FILTER,
@@ -26,6 +25,7 @@ import { elevatedSurfaceClassName } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/utils";
 import type { DecisionBiasFilterOption } from "@/lib/db/decisions";
 import { m } from "@/lib/i18n/uk";
+import { useDecisionsNavigation } from "@/components/decisions/decisions-navigation-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -88,21 +88,19 @@ export function DecisionsToolbar({
   query: DecisionListQuery;
   biasOptions: DecisionBiasFilterOption[];
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { navigate } = useDecisionsNavigation();
   const hasActiveFilters = hasActiveDecisionListFilters(query);
   const categoryFilterOptions = getCategoryFilterOptions();
   const selectedBiasIsAvailable =
     query.bias === DEFAULT_DECISION_BIAS_FILTER ||
     biasOptions.some((option) => option.key === query.bias);
 
-  function navigate(updates: Partial<DecisionListQuery>) {
+  function applyFilters(updates: Partial<DecisionListQuery>) {
     const next = updateSearchParams(searchParams, updates);
     const queryString = next.toString();
-    router.push(queryString ? `${pathname}?${queryString}` : pathname, {
-      scroll: false,
-    });
+    navigate(queryString ? `${pathname}?${queryString}` : pathname);
   }
 
   return (
@@ -113,7 +111,7 @@ export function DecisionsToolbar({
           <Select
             value={query.sort}
             onValueChange={(value) =>
-              navigate({ sort: value as DecisionSortOption })
+              applyFilters({ sort: value as DecisionSortOption })
             }
           >
             <SelectTrigger id="decisions-sort" className="w-full">
@@ -134,7 +132,7 @@ export function DecisionsToolbar({
           <Select
             value={query.status}
             onValueChange={(value) =>
-              navigate({ status: value as DecisionStatusFilter })
+              applyFilters({ status: value as DecisionStatusFilter })
             }
           >
             <SelectTrigger id="decisions-status" className="w-full">
@@ -155,7 +153,7 @@ export function DecisionsToolbar({
           <Select
             value={query.category}
             onValueChange={(value) =>
-              navigate({ category: value as DecisionCategoryFilter })
+              applyFilters({ category: value as DecisionCategoryFilter })
             }
           >
             <SelectTrigger id="decisions-category" className="w-full">
@@ -184,7 +182,7 @@ export function DecisionsToolbar({
             value={
               selectedBiasIsAvailable ? query.bias : DEFAULT_DECISION_BIAS_FILTER
             }
-            onValueChange={(value) => navigate({ bias: value })}
+            onValueChange={(value) => applyFilters({ bias: value })}
           >
             <SelectTrigger id="decisions-bias" className="w-full">
               <SelectValue placeholder="Bias" />
@@ -233,10 +231,13 @@ export function DecisionsToolbar({
               </Badge>
             ) : null}
           </div>
-          <Button asChild variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-            <Link href={decisionsListHref()} scroll={false}>
-              {m.decisions.toolbar.clearFilters}
-            </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full shrink-0 sm:w-auto"
+            onClick={() => navigate(decisionsListHref())}
+          >
+            {m.decisions.toolbar.clearFilters}
           </Button>
         </div>
       ) : null}
