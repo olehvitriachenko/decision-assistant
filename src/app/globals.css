@@ -123,6 +123,7 @@
   }
   html {
     @apply font-sans scroll-smooth;
+    scroll-padding-top: 3.5rem;
     font-size: 17px;
     color-scheme: light dark;
   }

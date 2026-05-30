@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { routes } from "@/lib/config/routes";
 import { getUser } from "@/lib/supabase/auth";
 import { AppHeader } from "@/components/layout/app-header";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 
 export default async function ProtectedLayout({
   children,
@@ -17,6 +18,7 @@ export default async function ProtectedLayout({
 
   return (
     <>
+      <ScrollToTop />
       <AppHeader userEmail={user.email ?? ""} />
       {children}
     </>
