@@ -1,6 +1,6 @@
 # Decision Assistant
 
-AI-powered application for analyzing personal and professional decisions using OpenAI, Supabase, and Next.js.
+Document life and work decisions, get structured AI feedback on your reasoning.
 
 ## Live Demo
 
@@ -12,17 +12,22 @@ AI-powered application for analyzing personal and professional decisions using O
 
 ---
 
+## Problem
+
+Important decisions are often made under uncertainty and cognitive bias.
+
+Decision Assistant helps users document their reasoning and receive structured AI feedback — detected biases, alternative options, and a confidence score.
+
+The goal is not to make decisions for the user, but to help them evaluate their own thinking more objectively.
+
 ## Overview
 
-Decision Assistant helps users evaluate important personal and professional decisions by combining structured decision tracking with AI-generated insights.
+Built with Next.js, Supabase, and OpenAI. Users can:
 
-Users can:
-
-- Create and manage decisions
-- Receive AI-powered analysis
-- Detect cognitive biases
-- Explore alternative options
-- Track decision patterns through a personalized dashboard
+- Register and manage personal decisions
+- Run background LLM analysis on each decision
+- Review history, filters, and dashboard insights
+- Re-analyze or retry after failures
 
 ## Screenshots
 
@@ -48,7 +53,7 @@ Detailed AI-generated analysis including summary, detected biases, support score
 
 ### Decision Management
 
-- Create decisions (situation, decision, optional thoughts)
+- Create decisions (title, situation, decision, optional thoughts)
 - Browse decision history with filters and sorting
 - View decision details
 - Re-analyze decisions
@@ -143,8 +148,20 @@ The application follows a "save first, analyze later" approach to avoid blocking
 
 - Row Level Security enabled
 - User-level data isolation
-- Service role key used only for server-side admin operations
+- Service role key used only for server-side admin operations (status updates, analysis writes, lock RPCs)
 - Database-level validation constraints
+- One analysis row per decision (`UNIQUE (decision_id)`)
+
+### Concurrency-Safe Analysis Pipeline
+
+Background analysis uses database-level coordination to avoid duplicate OpenAI calls and stale writes:
+
+1. **`claim_decision_analysis_lock`** — only one worker analyzes a decision at a time
+2. **`analysis_generation`** — incremented on re-analyze; invalidates in-flight workers
+3. **`insert_decision_analysis_if_generation_matches`** — verifies generation and inserts in one transaction
+4. **`reset_decision_analysis`** — atomically deletes the old analysis, bumps generation, and resets status to `processing`
+
+Client recovery polling (`resumePendingAnalysis`) only runs after a grace period so it does not race with the initial `after()` job.
 
 ### Validation
 
@@ -188,20 +205,36 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Supabase Auth setup
+
+For registration to work out of the box (immediate session after sign-up):
+
+1. Supabase → **Authentication** → **Providers** → **Email**
+2. Disable **Confirm email** (or configure email confirmation + redirect URLs separately)
+3. Supabase → **Authentication** → **URL Configuration**
+   - **Site URL:** your production URL (e.g. `https://decision-assistant-gules.vercel.app`)
+   - **Redirect URLs:** add production and local URLs (e.g. `http://localhost:3000/**`, `https://decision-assistant-gules.vercel.app/**`)
+
 ## Deployment
 
 1. Push the repo to GitHub
 2. Import the project on [Vercel](https://vercel.com)
 3. Add all environment variables from `.env.example`
-4. In Supabase → **Authentication → URL Configuration**, add the Vercel production URL to allowed redirect URLs
+4. Apply Supabase migrations: `npm run db:push`
+5. Complete the [Supabase Auth setup](#supabase-auth-setup) above
 
 ## Database
 
 Migrations live in `supabase/migrations/`:
 
-- `decisions` — user decisions with status (`processing`, `completed`, `failed`)
-- `analyses` — structured AI output linked to decisions
+- `decisions` — user decisions with status (`processing`, `completed`, `failed`), `analysis_generation`, `analysis_locked_at`
+- `analyses` — structured AI output linked to decisions (one row per decision)
 - RLS policies ensure users access only their own data
+- RPC functions: paginated list/stats, analysis lock claim/release, atomic insert, re-analyze reset
+
+## Testing
+
+Automated tests are not included — the assignment focused on a working demo and architecture. Critical flows (auth, create → background analysis → completed, re-analyze, filters) are verified manually against the [live demo](https://decision-assistant-gules.vercel.app).
 
 ## Future Improvements
 
@@ -212,4 +245,5 @@ Migrations live in `supabase/migrations/`:
 
 ## Notes
 
-This project was built as part of a Product Engineer (Fullstack) technical assessment focused on architecture design, AI integration, security, UX, and product thinking.
+- UI copy is in Ukrainian.
+- This project was built as part of a Product Engineer (Fullstack) technical assessment focused on architecture design, AI integration, security, UX, and product thinking.
