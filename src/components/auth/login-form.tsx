@@ -48,7 +48,7 @@ export function LoginForm() {
 
   return (
     <Card className={cn("w-full max-w-md", elevatedSurfaceClassName)}>
-      <CardHeader className="px-6 pt-6 pb-2 sm:px-8 sm:pt-8">
+      <CardHeader className="gap-2 px-6 pt-6 pb-4 sm:px-8 sm:pt-8">
         <CardTitle>{m.auth.signIn}</CardTitle>
         <CardDescription>{m.auth.signInDescription}</CardDescription>
       </CardHeader>
@@ -96,7 +96,7 @@ export function LoginForm() {
             ))}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-5 border-t-0 bg-transparent px-6 pt-2 pb-6 sm:px-8 sm:pb-8">
+        <CardFooter className="flex flex-col gap-5 border-t-0 bg-transparent px-6 pt-6 pb-6 dark:bg-transparent sm:px-8 sm:pb-8">
           <Button type="submit" className="h-10 w-full" disabled={isPending}>
             {isPending ? m.auth.signingIn : m.auth.signIn}
           </Button>

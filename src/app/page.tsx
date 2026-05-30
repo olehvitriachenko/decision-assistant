@@ -44,10 +44,10 @@ export default async function HomePage() {
             <CardDescription>{m.landing.getStartedDescription}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="flex-1">
+            <Button asChild size="lg" className="h-11 flex-1 px-4 py-2 sm:h-10">
               <Link href={routes.login}>{m.landing.signIn}</Link>
             </Button>
-            <Button asChild variant="outline" className="flex-1">
+            <Button asChild variant="outline" size="lg" className="h-11 flex-1 px-4 py-2 sm:h-10">
               <Link href={routes.register}>{m.landing.createAccount}</Link>
             </Button>
           </CardContent>
