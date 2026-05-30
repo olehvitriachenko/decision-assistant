@@ -7,6 +7,7 @@ import { m } from "@/lib/i18n/uk";
 import { elevatedSurfaceClassName, iconSurfaceClassName } from "@/lib/ui/surface-classes";
 import { cn } from "@/lib/utils";
 import { getUser } from "@/lib/supabase/auth";
+import { AppPurposeIntro } from "@/components/layout/app-purpose-intro";
 import { PageContainer } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,7 @@ export default async function HomePage() {
             {m.landing.subtitle}
           </p>
         </div>
+        <AppPurposeIntro showSteps className="text-left" />
         <Card className={cn("text-left", elevatedSurfaceClassName)}>
           <CardHeader>
             <CardTitle>{m.landing.getStarted}</CardTitle>

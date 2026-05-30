@@ -88,6 +88,9 @@ export default async function DecisionsPage({
         <h1 className="text-3xl font-semibold tracking-tight">
           {m.decisions.allTitle}
         </h1>
+        <p className="max-w-2xl text-sm text-muted-foreground text-pretty">
+          {m.decisions.allDescription}
+        </p>
         <p className="text-sm text-muted-foreground">
           {m.decisions.totalLabel(formatDecisionCount(result.total))}
         </p>

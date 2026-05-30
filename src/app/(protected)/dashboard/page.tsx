@@ -10,6 +10,7 @@ import {
 import { formatDecisionCount } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
+import { AppPurposeIntro } from "@/components/layout/app-purpose-intro";
 import { DashboardInsights } from "@/components/dashboard/dashboard-insights";
 import { DecisionsProcessingWatcher } from "@/components/decisions/decision-analysis-poller";
 import { DecisionsList } from "@/components/decisions/decisions-list";
@@ -40,18 +41,22 @@ export default async function DashboardPage() {
   return (
     <PageContainer>
       <DecisionsProcessingWatcher decisionIds={processingDecisionIds} />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {m.dashboard.welcome}
-          </h1>
-          {user.email ? (
-            <p className="text-xs text-muted-foreground">{user.email}</p>
-          ) : null}
+      <div className="space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {m.dashboard.welcome}
+            </h1>
+            {user.email ? (
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            ) : null}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {formatDecisionCount(total)}
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">
-          {formatDecisionCount(total)}
-        </p>
+
+        <AppPurposeIntro showSteps={isEmpty} />
       </div>
 
       {isEmpty ? (
