@@ -157,25 +157,19 @@ export function DecisionsToolbar({
             }
           >
             <SelectTrigger id="decisions-category" className="w-full">
-              <SelectValue placeholder="Category" />
+              <SelectValue placeholder={decisionCategoryFilterLabels.all}>
+                {decisionCategoryFilterLabels[query.category]}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-w-[var(--radix-select-trigger-width)]">
+            <SelectContent className="min-w-[var(--radix-select-trigger-width)] sm:min-w-72">
               {categoryFilterOptions.map((option) => (
                 <SelectItem
                   key={option.slug}
                   value={option.slug}
                   textValue={option.labelUk}
+                  description={option.descriptionUk || undefined}
                 >
-                  {option.descriptionUk ? (
-                    <div className="flex flex-col gap-0.5 py-0.5 text-left">
-                      <span className="font-medium">{option.labelUk}</span>
-                      <span className="text-xs leading-snug text-muted-foreground">
-                        {option.descriptionUk}
-                      </span>
-                    </div>
-                  ) : (
-                    option.labelUk
-                  )}
+                  {option.labelUk}
                 </SelectItem>
               ))}
             </SelectContent>
