@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  ANALYSIS_LOCK_STALE_SECONDS,
   ANALYSIS_RECOVERY_MS,
   PROCESSING_STALE_MS,
   STATUS_UPDATE_MAX_ATTEMPTS,
@@ -15,9 +16,13 @@ import {
   getAnalysisByDecisionId,
 } from "@/lib/db/analyses";
 import {
+  bumpDecisionAnalysisGeneration,
+  claimDecisionAnalysisLock,
   createDecision as createDecisionRecord,
   deleteDecisionById,
   getDecisionById,
+  getDecisionByIdAdmin,
+  releaseDecisionAnalysisLock,
   updateDecisionStatus,
 } from "@/lib/db/decisions";
 import { analyzeDecision } from "@/lib/openai/analyze-decision";
@@ -113,6 +118,17 @@ function isProcessingNeedsRecovery(decision: Decision) {
   return ageMs !== null && ageMs >= ANALYSIS_RECOVERY_MS;
 }
 
+async function isAnalysisGenerationCurrent(
+  decisionId: string,
+  generation: number
+): Promise<boolean> {
+  const current = await getDecisionByIdAdmin(decisionId);
+
+  return (
+    current?.status === "processing" && current.analysis_generation === generation
+  );
+}
+
 async function runAnalysisPipeline(
   decision: Decision,
   options: { forceReanalysis?: boolean } = {}
@@ -138,12 +154,27 @@ async function runAnalysisPipeline(
     return { success: true };
   }
 
-  try {
+  const claim = await claimDecisionAnalysisLock(
+    decision.id,
+    ANALYSIS_LOCK_STALE_SECONDS
+  );
+
+  if (!claim.claimed) {
     const latestAnalysis = await getAnalysisByDecisionId(decision.id);
 
     if (latestAnalysis && !options.forceReanalysis) {
       await syncCompletedDecision(decision.id);
       return { success: true };
+    }
+
+    return { success: false };
+  }
+
+  const claimedGeneration = claim.generation;
+
+  try {
+    if (!(await isAnalysisGenerationCurrent(decision.id, claimedGeneration))) {
+      return { success: false };
     }
 
     const analysis = await analyzeDecision({
@@ -152,6 +183,10 @@ async function runAnalysisPipeline(
       decision: decision.decision,
       thoughts: decision.thoughts ?? undefined,
     });
+
+    if (!(await isAnalysisGenerationCurrent(decision.id, claimedGeneration))) {
+      return { success: false };
+    }
 
     await createAnalysis({
       decisionId: decision.id,
@@ -166,8 +201,13 @@ async function runAnalysisPipeline(
 
     return updated ? { success: true } : { success: false };
   } catch {
-    await updateDecisionStatusWithRetry(decision.id, "failed");
+    if (await isAnalysisGenerationCurrent(decision.id, claimedGeneration)) {
+      await updateDecisionStatusWithRetry(decision.id, "failed");
+    }
+
     return { success: false };
+  } finally {
+    await releaseDecisionAnalysisLock(decision.id);
   }
 }
 
@@ -198,6 +238,7 @@ export async function reanalyzeDecision(
 
   try {
     await deleteAnalysesByDecisionId(decisionId);
+    await bumpDecisionAnalysisGeneration(decisionId);
     await updateDecisionStatus(decisionId, "processing");
   } catch (error) {
     return {

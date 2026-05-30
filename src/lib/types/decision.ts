@@ -10,6 +10,8 @@ export type Decision = {
   status: DecisionStatus;
   created_at: string;
   updated_at: string;
+  analysis_locked_at: string | null;
+  analysis_generation: number;
 };
 
 export type DecisionListItem = {

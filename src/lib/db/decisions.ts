@@ -355,6 +355,85 @@ export async function updateDecisionStatus(
   }
 }
 
+export type AnalysisClaimResult = {
+  claimed: boolean;
+  generation: number;
+};
+
+export async function getDecisionByIdAdmin(
+  decisionId: string
+): Promise<Decision | null> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from(decisionsTableName)
+    .select("*")
+    .eq("id", decisionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function claimDecisionAnalysisLock(
+  decisionId: string,
+  lockStaleSeconds: number
+): Promise<AnalysisClaimResult> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase.rpc("claim_decision_analysis_lock", {
+    p_decision_id: decisionId,
+    p_lock_stale_seconds: lockStaleSeconds,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const row = (data?.[0] ?? { claimed: false, generation: 0 }) as {
+    claimed: boolean;
+    generation: number;
+  };
+
+  return {
+    claimed: Boolean(row.claimed),
+    generation: Number(row.generation),
+  };
+}
+
+export async function releaseDecisionAnalysisLock(
+  decisionId: string
+): Promise<void> {
+  const supabase = createAdminClient();
+
+  const { error } = await supabase.rpc("release_decision_analysis_lock", {
+    p_decision_id: decisionId,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function bumpDecisionAnalysisGeneration(
+  decisionId: string
+): Promise<number> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase.rpc("bump_decision_analysis_generation", {
+    p_decision_id: decisionId,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return Number(data ?? 0);
+}
+
 export async function deleteDecisionById(decisionId: string): Promise<void> {
   const supabase = await createClient();
 
