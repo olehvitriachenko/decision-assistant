@@ -117,6 +117,42 @@ function isProcessingNeedsRecovery(decision: Decision) {
   return ageMs !== null && ageMs >= ANALYSIS_RECOVERY_MS;
 }
 
+function isAnalysisLockActive(decision: Decision) {
+  if (!decision.analysis_locked_at) {
+    return false;
+  }
+
+  const lockAgeMs = Date.now() - Date.parse(decision.analysis_locked_at);
+
+  if (!Number.isFinite(lockAgeMs) || lockAgeMs < 0) {
+    return false;
+  }
+
+  return lockAgeMs < ANALYSIS_LOCK_STALE_SECONDS * 1000;
+}
+
+async function shouldMarkRecoveryFailed(decisionId: string) {
+  const current = await getDecisionByIdAdmin(decisionId);
+
+  if (!current || current.status !== "processing") {
+    return false;
+  }
+
+  if (await getAnalysisByDecisionId(decisionId)) {
+    return false;
+  }
+
+  if (!isProcessingStale(current)) {
+    return false;
+  }
+
+  if (isAnalysisLockActive(current)) {
+    return false;
+  }
+
+  return true;
+}
+
 async function isAnalysisGenerationCurrent(
   decisionId: string,
   generation: number
@@ -363,7 +399,7 @@ export async function resumePendingAnalysis(decisionId: string): Promise<void> {
 
   const result = await runAnalysisPipeline(decision);
 
-  if (!result.success && isProcessingStale(decision)) {
+  if (!result.success && (await shouldMarkRecoveryFailed(decisionId))) {
     await updateDecisionStatusWithRetry(decisionId, "failed");
   }
 
