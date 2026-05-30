@@ -1,11 +1,12 @@
 import { analysesTableName } from "@/lib/config/database";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Analysis, CreateAnalysisInput } from "@/lib/types/analysis";
 
 export async function createAnalysis(
   input: CreateAnalysisInput
 ): Promise<Analysis> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from(analysesTableName)
@@ -114,7 +115,7 @@ export async function getLatestAnalysesWithBiasesByDecisionIds(
 }
 
 export async function deleteAnalysesByDecisionId(decisionId: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { error } = await supabase
     .from(analysesTableName)

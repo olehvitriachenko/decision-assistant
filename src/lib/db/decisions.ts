@@ -15,6 +15,7 @@ import {
 import { normalizeBias } from "@/lib/normalize-bias";
 import { getSupportLevel } from "@/lib/support-score";
 import { getDecisionComplexityScore } from "@/lib/decision-complexity";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { CreateDecisionInput } from "@/lib/validations/decision";
 import type { Decision, DecisionListItem, DecisionStatus } from "@/lib/types/decision";
@@ -572,7 +573,7 @@ export async function updateDecisionStatus(
   decisionId: string,
   status: DecisionStatus
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { error } = await supabase
     .from(decisionsTableName)

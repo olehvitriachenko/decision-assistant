@@ -90,7 +90,7 @@ async function syncCompletedDecision(decisionId: string) {
 }
 
 function isProcessingStale(decision: Decision) {
-  const ageMs = Date.now() - Date.parse(decision.created_at);
+  const ageMs = Date.now() - Date.parse(decision.updated_at);
 
   return Number.isFinite(ageMs) && ageMs >= PROCESSING_STALE_MS;
 }

@@ -15,6 +15,10 @@ export function getSupabaseEnv() {
   };
 }
 
+export function getSupabaseSecretKey() {
+  return requireEnv("SUPABASE_SECRET_KEY");
+}
+
 export function getSupabaseProjectRef() {
   const fromEnv = process.env.SUPABASE_PROJECT_REF?.trim();
   if (fromEnv) {

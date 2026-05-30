@@ -9,6 +9,7 @@ export type Decision = {
   thoughts: string | null;
   status: DecisionStatus;
   created_at: string;
+  updated_at: string;
 };
 
 export type DecisionListItem = {
