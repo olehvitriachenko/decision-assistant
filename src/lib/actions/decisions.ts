@@ -11,8 +11,8 @@ import {
   STATUS_UPDATE_MAX_ATTEMPTS,
 } from "@/lib/config/analysis";
 import {
-  createAnalysis,
   getAnalysisByDecisionId,
+  insertAnalysisIfGenerationMatches,
 } from "@/lib/db/analyses";
 import {
   claimDecisionAnalysisLock,
@@ -128,15 +128,6 @@ async function isAnalysisGenerationCurrent(
   );
 }
 
-function isUniqueConstraintViolation(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "23505"
-  );
-}
-
 async function runAnalysisPipeline(
   decision: Decision,
   options: { forceReanalysis?: boolean } = {}
@@ -196,8 +187,9 @@ async function runAnalysisPipeline(
       return { success: false };
     }
 
-    await createAnalysis({
+    const analysisId = await insertAnalysisIfGenerationMatches({
       decisionId: decision.id,
+      expectedGeneration: claimedGeneration,
       category: analysis.category,
       confidence: analysis.confidence,
       biases: analysis.biases,
@@ -205,14 +197,21 @@ async function runAnalysisPipeline(
       summary: analysis.summary,
     });
 
+    if (!analysisId) {
+      const insertedByAnotherWorker = await getAnalysisByDecisionId(decision.id);
+
+      if (insertedByAnotherWorker) {
+        await syncCompletedDecision(decision.id);
+        return { success: true };
+      }
+
+      return { success: false };
+    }
+
     const updated = await updateDecisionStatusWithRetry(decision.id, "completed");
 
     return updated ? { success: true } : { success: false };
   } catch (error) {
-    if (isUniqueConstraintViolation(error)) {
-      return { success: false };
-    }
-
     if (await isAnalysisGenerationCurrent(decision.id, claimedGeneration)) {
       await updateDecisionStatusWithRetry(decision.id, "failed");
     }

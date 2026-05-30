@@ -1,7 +1,11 @@
 import { analysesTableName } from "@/lib/config/database";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { Analysis, CreateAnalysisInput } from "@/lib/types/analysis";
+import type {
+  Analysis,
+  CreateAnalysisInput,
+  InsertAnalysisIfGenerationMatchesInput,
+} from "@/lib/types/analysis";
 
 export async function createAnalysis(
   input: CreateAnalysisInput
@@ -32,6 +36,33 @@ export async function createAnalysis(
     biases: data.biases as string[],
     alternatives: data.alternatives as string[],
   };
+}
+
+export async function insertAnalysisIfGenerationMatches(
+  input: InsertAnalysisIfGenerationMatchesInput
+): Promise<string | null> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase.rpc(
+    "insert_decision_analysis_if_generation_matches",
+    {
+      p_decision_id: input.decisionId,
+      p_expected_generation: input.expectedGeneration,
+      p_category: input.category,
+      p_confidence: input.confidence,
+      p_biases: input.biases,
+      p_alternatives: input.alternatives,
+      p_summary: input.summary,
+    }
+  );
+
+  if (error) {
+    const dbError = new Error(error.message) as Error & { code?: string };
+    dbError.code = error.code;
+    throw dbError;
+  }
+
+  return typeof data === "string" ? data : null;
 }
 
 export async function getLatestAnalysesByDecisionIds(

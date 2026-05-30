@@ -17,3 +17,7 @@ export type CreateAnalysisInput = {
   alternatives: string[];
   summary: string;
 };
+
+export type InsertAnalysisIfGenerationMatchesInput = CreateAnalysisInput & {
+  expectedGeneration: number;
+};
