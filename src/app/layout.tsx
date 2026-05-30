@@ -16,6 +16,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: m.meta.title,
   description: m.meta.description,
+  icons: {
+    icon: [{ url: "/icon", type: "image/png", sizes: "32x32" }],
+    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
