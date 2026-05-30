@@ -1,9 +1,11 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import { type ReactNode } from "react";
 
 import { getCategoryDescription, getCategoryLabel } from "@/lib/categories/registry";
 import { m } from "@/lib/i18n/uk";
+import { categoryOutlineBadgeClassName } from "@/lib/ui/surface-classes";
 import { Hint } from "@/components/ui/hint";
 import { usePrefersHover } from "@/hooks/use-prefers-hover";
 import { Badge } from "@/components/ui/badge";
@@ -37,17 +39,31 @@ export function CategoryHint({
     );
   }
 
+  const badgeClassName = cn(
+    "inline-flex items-center justify-center leading-none py-0",
+    size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
+    categoryOutlineBadgeClassName
+  );
+
   const badge = (
+    <Badge variant="outline" className={badgeClassName}>
+      {label}
+    </Badge>
+  );
+
+  const hintBadge = (
     <Badge
       variant="outline"
-      className={cn(
-        "inline-flex items-center justify-center leading-none py-0",
-        prefersHover && "underline decoration-dotted underline-offset-4",
-        size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
-        "border-border/70 bg-background shadow-sm dark:border-border/60 dark:bg-background/60 dark:shadow-none"
-      )}
+      className={cn(badgeClassName, "gap-1 pl-2 pr-1.5")}
     >
       {label}
+      <CircleAlert
+        className={cn(
+          "size-3 shrink-0 text-muted-foreground transition-colors",
+          "group-hover:text-primary group-focus-visible:text-primary dark:group-hover:text-foreground"
+        )}
+        aria-hidden="true"
+      />
     </Badge>
   );
 
@@ -72,7 +88,7 @@ export function CategoryHint({
         description={description}
         ariaHint={m.decisions.analysis.categoryHint}
       >
-        {badge}
+        {hintBadge}
       </Hint>
       {companion}
     </div>

@@ -4,6 +4,10 @@ import { formatCategoryDisplay } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
 import type { DecisionStatus } from "@/lib/types/decision";
 import { classifySupportScore } from "@/lib/support-score";
+import {
+  categoryOutlineBadgeClassName,
+  categoryProminentBadgeClassName,
+} from "@/lib/ui/surface-classes";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -58,13 +62,13 @@ export function CategoryBadge({
 }) {
   return (
     <Badge
-      variant={variant === "prominent" ? "secondary" : "outline"}
+      variant="outline"
       className={cn(
         badgeAlignClass,
         size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
         variant === "prominent"
-          ? "border-primary/35 bg-primary/10 font-semibold text-primary shadow-sm dark:border-primary/35 dark:bg-primary/20 dark:text-primary"
-          : "border-border/70 bg-background shadow-sm dark:border-border/60 dark:bg-background/60 dark:shadow-none dark:backdrop-blur-sm",
+          ? categoryProminentBadgeClassName
+          : categoryOutlineBadgeClassName,
         variant === "prominent" && size === "md" && "h-7 px-3"
       )}
     >

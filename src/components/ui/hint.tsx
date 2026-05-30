@@ -48,7 +48,7 @@ export function Hint({
           type="button"
           aria-label={`${label}. ${ariaHint}`}
           className={cn(
-            "inline-flex cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "group inline-flex cursor-help rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             className
           )}
           onClick={() => setOpen((current) => !current)}
