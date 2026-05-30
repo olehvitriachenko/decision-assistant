@@ -134,6 +134,7 @@ export const m = {
       notFound: "Рішення не знайдено.",
       createFailed: "Не вдалося створити рішення. Спробуйте ще раз.",
       analysisStartFailed: "Не вдалося запустити аналіз. Спробуйте ще раз.",
+      deleteFailed: "Не вдалося видалити рішення. Спробуйте ще раз.",
     },
     list: {
       emptyFilteredTitle: "Немає відповідних рішень",
@@ -150,6 +151,12 @@ export const m = {
       situation: "Ситуація",
       decision: "Рішення",
       thoughts: "Міркування",
+      delete: "Видалити",
+      deleteConfirm: "Точно видалити?",
+      deleteDescription:
+        "Рішення та його AI-аналіз буде видалено без можливості відновлення.",
+      deleting: "Видалення…",
+      cancel: "Скасувати",
     },
     analysis: {
       unavailableTitle: "Аналіз недоступний",

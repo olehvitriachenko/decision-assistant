@@ -2,6 +2,7 @@ import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
 import { formatDateTime } from "@/lib/i18n/format";
 import { m } from "@/lib/i18n/uk";
+import { DecisionDeleteButton } from "@/components/decisions/decision-delete-button";
 import { DecisionAnalysisCard } from "@/components/decisions/decision-analysis-card";
 import {
   DecisionAnalysisPoller,
@@ -46,20 +47,16 @@ export function DecisionDetailView({
       <DecisionAnalysisPoller status={decision.status} decisionId={decision.id} />
 
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            {decision.status === "completed" ? (
-              <DecisionStatusBadge status={decision.status} />
-            ) : null}
-            <span className="text-sm text-muted-foreground">
-              {m.common.createdAt(formatDateTime(decision.created_at))}
-            </span>
-          </div>
-          {decision.status !== "completed" ? (
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-2">
             <DecisionStatusBadge status={decision.status} size="md" />
-          ) : null}
+            <p className="text-sm text-muted-foreground">
+              {m.common.createdAt(formatDateTime(decision.created_at))}
+            </p>
+          </div>
+          <DecisionDeleteButton decisionId={decision.id} />
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-balance">
+        <h1 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
           {decision.title}
         </h1>
       </div>

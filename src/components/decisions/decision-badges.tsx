@@ -19,7 +19,7 @@ const statusBadgeClassNames: Record<DecisionStatus, string> = {
   failed:
     "border-destructive/30 bg-destructive/10 font-medium text-destructive dark:bg-destructive/20",
   completed:
-    "border-border/70 bg-muted/50 font-medium text-foreground/75 dark:border-border/40 dark:bg-transparent dark:font-normal dark:text-muted-foreground",
+    "border-emerald-500/35 bg-emerald-500/10 font-medium text-emerald-700 dark:border-emerald-500/35 dark:bg-emerald-500/15 dark:text-emerald-300",
 };
 
 const badgeAlignClass = "inline-flex items-center justify-center leading-none py-0";

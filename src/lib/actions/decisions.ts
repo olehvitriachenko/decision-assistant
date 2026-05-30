@@ -15,6 +15,7 @@ import {
 } from "@/lib/db/analyses";
 import {
   createDecision as createDecisionRecord,
+  deleteDecisionById,
   getDecisionById,
   updateDecisionStatus,
 } from "@/lib/db/decisions";
@@ -36,6 +37,10 @@ export type CreateDecisionActionState = {
 };
 
 export type ReanalyzeDecisionActionState = {
+  error?: string;
+};
+
+export type DeleteDecisionActionState = {
   error?: string;
 };
 
@@ -193,6 +198,37 @@ export async function reanalyzeDecision(
   scheduleAnalysisInBackground(refreshedDecision, { forceReanalysis: true });
 
   return {};
+}
+
+export async function deleteDecision(
+  decisionId: string
+): Promise<DeleteDecisionActionState> {
+  const user = await getUser();
+
+  if (!user) {
+    redirect(routes.login);
+  }
+
+  const decision = await getDecisionById(decisionId);
+
+  if (!decision || decision.user_id !== user.id) {
+    return { error: m.decisions.errors.notFound };
+  }
+
+  try {
+    await deleteDecisionById(decisionId);
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : m.decisions.errors.deleteFailed,
+    };
+  }
+
+  revalidatePath(routes.dashboard);
+  revalidatePath(routes.decisions);
+  redirect(routes.decisions);
 }
 
 export async function createDecision(

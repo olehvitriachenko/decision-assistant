@@ -584,3 +584,16 @@ export async function updateDecisionStatus(
     throw new Error(error.message);
   }
 }
+
+export async function deleteDecisionById(decisionId: string): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from(decisionsTableName)
+    .delete()
+    .eq("id", decisionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
