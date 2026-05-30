@@ -9,7 +9,6 @@ import {
   DEFAULT_DECISION_SORT,
   DEFAULT_DECISION_STATUS_FILTER,
   decisionCategoryFilterLabels,
-  decisionCategoryFilterOptions,
   type DecisionCategoryFilter,
   type DecisionListQuery,
   decisionSortLabels,
@@ -22,6 +21,7 @@ import {
   getBiasFilterLabel,
   hasActiveDecisionListFilters,
 } from "@/lib/config/decision-list-params";
+import { getCategoryFilterOptions } from "@/lib/categories/registry";
 import type { DecisionBiasFilterOption } from "@/lib/db/decisions";
 import { m } from "@/lib/i18n/uk";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +90,7 @@ export function DecisionsToolbar({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasActiveFilters = hasActiveDecisionListFilters(query);
+  const categoryFilterOptions = getCategoryFilterOptions();
   const selectedBiasIsAvailable =
     query.bias === DEFAULT_DECISION_BIAS_FILTER ||
     biasOptions.some((option) => option.key === query.bias);
@@ -156,10 +157,23 @@ export function DecisionsToolbar({
             <SelectTrigger id="decisions-category" className="w-full">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
-            <SelectContent>
-              {decisionCategoryFilterOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {decisionCategoryFilterLabels[option]}
+            <SelectContent className="max-w-[var(--radix-select-trigger-width)]">
+              {categoryFilterOptions.map((option) => (
+                <SelectItem
+                  key={option.slug}
+                  value={option.slug}
+                  textValue={option.labelUk}
+                >
+                  {option.descriptionUk ? (
+                    <div className="flex flex-col gap-0.5 py-0.5 text-left">
+                      <span className="font-medium">{option.labelUk}</span>
+                      <span className="text-xs leading-snug text-muted-foreground">
+                        {option.descriptionUk}
+                      </span>
+                    </div>
+                  ) : (
+                    option.labelUk
+                  )}
                 </SelectItem>
               ))}
             </SelectContent>

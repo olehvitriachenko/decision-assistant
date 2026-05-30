@@ -50,17 +50,22 @@ export function DecisionStatusBadge({
 export function CategoryBadge({
   category,
   size = "sm",
+  variant = "default",
 }: {
   category: string;
   size?: "sm" | "md";
+  variant?: "default" | "prominent";
 }) {
   return (
     <Badge
-      variant="outline"
+      variant={variant === "prominent" ? "secondary" : "outline"}
       className={cn(
         badgeAlignClass,
         size === "md" ? "h-6 px-2.5 text-xs" : "h-5",
-        "border-border/60 bg-background/60 backdrop-blur-sm"
+        variant === "prominent"
+          ? "border-primary/40 bg-primary/15 font-semibold text-primary shadow-sm dark:border-primary/35 dark:bg-primary/20 dark:text-primary"
+          : "border-border/60 bg-background/60 backdrop-blur-sm",
+        variant === "prominent" && size === "md" && "h-7 px-3"
       )}
     >
       {formatCategoryDisplay(category)}

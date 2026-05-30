@@ -136,7 +136,7 @@ function countBiasFrequencies(values: string[]) {
 
 type DecisionRow = Pick<
   Decision,
-  "id" | "title" | "status" | "created_at"
+  "id" | "title" | "decision" | "status" | "created_at"
 >;
 
 function needsAnalysisAwareQuery(query: DecisionListQuery) {
@@ -304,7 +304,7 @@ async function fetchDecisionRows(
 
   let request = supabase
     .from(decisionsTableName)
-    .select("id, title, status, created_at")
+    .select("id, title, decision, status, created_at")
     .eq("user_id", userId);
 
   if (status) {
@@ -361,7 +361,7 @@ async function getDecisionsWithSqlPagination(
 
   let request = supabase
     .from(decisionsTableName)
-    .select("id, title, status, created_at", { count: "exact" })
+    .select("id, title, decision, status, created_at", { count: "exact" })
     .eq("user_id", userId);
 
   if (status) {

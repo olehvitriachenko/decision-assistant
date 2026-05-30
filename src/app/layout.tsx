@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { m } from "@/lib/i18n/uk";
 
 import "./globals.css";
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <TooltipProvider delayDuration={200}>
           <div className="relative flex min-h-screen flex-col">
             <div
               aria-hidden="true"
@@ -42,6 +44,7 @@ export default function RootLayout({
             />
             <main className="relative flex flex-1 flex-col">{children}</main>
           </div>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

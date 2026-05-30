@@ -9,11 +9,12 @@ import { m } from "@/lib/i18n/uk";
 import type { Analysis } from "@/lib/types/analysis";
 import type { Decision } from "@/lib/types/decision";
 import {
-  CategoryBadge,
   SupportScoreBadge,
 } from "@/components/decisions/decision-badges";
+import { CategoryHint } from "@/components/decisions/category-hint";
 import { DecisionProcessingCard } from "@/components/decisions/decision-analysis-poller";
 import { BiasInsightsList } from "@/components/decisions/bias-insights-list";
+import { usePrefersHover } from "@/hooks/use-prefers-hover";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,6 +36,7 @@ export function DecisionAnalysisCard({
   const [isPending, startTransition] = useTransition();
   const [isReanalyzing, setIsReanalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const prefersHover = usePrefersHover();
 
   useEffect(() => {
     if (decision.status !== "processing") {
@@ -102,14 +104,27 @@ export function DecisionAnalysisCard({
   return (
     <Card>
       <CardHeader className="gap-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <CategoryBadge category={analysis.category} />
-          <SupportScoreBadge confidence={analysis.confidence} />
-        </div>
-        <div className="space-y-1">
-          <CardTitle className="text-xl">{m.decisions.analysis.title}</CardTitle>
-          <CardDescription>{m.decisions.analysis.description}</CardDescription>
-        </div>
+        {prefersHover ? (
+          <>
+            <CategoryHint
+              category={analysis.category}
+              companion={<SupportScoreBadge confidence={analysis.confidence} />}
+            />
+            <div className="space-y-1">
+              <CardTitle className="text-xl">{m.decisions.analysis.title}</CardTitle>
+              <CardDescription>{m.decisions.analysis.description}</CardDescription>
+            </div>
+          </>
+        ) : (
+          <>
+            <SupportScoreBadge confidence={analysis.confidence} />
+            <CategoryHint category={analysis.category} variant="section" />
+            <div className="space-y-1">
+              <CardTitle className="text-xl">{m.decisions.analysis.title}</CardTitle>
+              <CardDescription>{m.decisions.analysis.description}</CardDescription>
+            </div>
+          </>
+        )}
       </CardHeader>
       <CardContent className="space-y-8">
         <div className="space-y-2">

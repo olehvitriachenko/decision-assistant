@@ -92,6 +92,9 @@ export function DashboardInsights({
               <div className="space-y-0.5">
                 <CardTitle className="text-base">{m.dashboard.categoriesTitle}</CardTitle>
                 <CardDescription>{m.dashboard.categoriesDescription}</CardDescription>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {m.dashboard.categoriesAiHint}
+                </p>
               </div>
             </div>
           </CardHeader>

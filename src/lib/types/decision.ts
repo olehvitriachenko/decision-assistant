@@ -14,6 +14,7 @@ export type Decision = {
 export type DecisionListItem = {
   id: string;
   title: string;
+  decision: string;
   status: DecisionStatus;
   created_at: string;
   analysis_category: string | null;

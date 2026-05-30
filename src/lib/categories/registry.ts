@@ -4,12 +4,16 @@ type CategoryDefinition = {
   key: string;
   slug: string;
   labelUk: string;
+  descriptionUk: string;
   aliases: string[];
 };
+
+const GENERIC_CATEGORY_DESCRIPTION = "Загальна категорія рішень.";
 
 function defineCategory(
   key: string,
   labelUk: string,
+  descriptionUk: string,
   aliases: string[] = []
 ): CategoryDefinition {
   const slug = key.trim().toLowerCase().replace(/\s+/g, "-");
@@ -18,116 +22,117 @@ function defineCategory(
     key,
     slug,
     labelUk,
+    descriptionUk,
     aliases: [key, slug, key.toLowerCase(), ...aliases],
   };
 }
 
 export const DECISION_CATEGORY_DEFINITIONS: CategoryDefinition[] = [
-  defineCategory("Career", "Кар'єра", [
-    "career",
-    "job",
-    "work",
-    "employment",
-    "profession",
-  ]),
-  defineCategory("Finance", "Фінанси", [
-    "finance",
-    "money",
-    "investing",
-    "investment",
-    "savings",
-    "budget",
-  ]),
-  defineCategory("Education", "Освіта", [
-    "education",
-    "learning",
-    "study",
-    "school",
-    "university",
-  ]),
-  defineCategory("Health", "Здоров'я", [
-    "health",
-    "medical",
-    "medicine",
-    "wellness",
-    "mental health",
-  ]),
-  defineCategory("Relationships", "Стосунки", [
-    "relationship",
-    "relationships",
-    "dating",
-    "marriage",
-    "partner",
-  ]),
-  defineCategory("Business", "Бізнес", [
-    "business",
-    "startup",
-    "entrepreneurship",
-    "company",
-  ]),
-  defineCategory("Personal Safety", "Особиста безпека", [
-    "personal safety",
-    "safety",
-    "risk",
-    "security",
-    "war",
-    "evacuation",
-    "mobilization",
-    "danger",
-    "threat",
-    "violence",
-  ]),
-  defineCategory("Legal", "Право", [
-    "legal",
-    "law",
-    "immigration",
-    "visa",
-    "visas",
-    "regulation",
-    "regulations",
-    "compliance",
-    "litigation",
-  ]),
-  defineCategory("Housing", "Житло", [
-    "housing",
-    "home",
-    "rent",
-    "apartment",
-    "moving",
-    "relocation",
-  ]),
-  defineCategory("Lifestyle", "Стиль життя", [
-    "lifestyle",
-    "hobby",
-    "hobbies",
-    "routine",
-  ]),
-  defineCategory("Travel", "Подорожі", [
-    "travel",
-    "trip",
-    "vacation",
-    "tourism",
-  ]),
-  defineCategory("Family", "Сім'я", [
-    "family",
-    "parenting",
-    "children",
-    "childcare",
-  ]),
-  defineCategory("Technology", "Технології", [
-    "technology",
-    "tech",
-    "software",
-    "digital",
-    "gadgets",
-  ]),
-  defineCategory("Other", "Інше", [
-    "other",
-    "general",
-    "personal",
-    "misc",
-    "miscellaneous",
-  ]),
+  defineCategory(
+    "Career",
+    "Кар'єра",
+    "Рішення, пов'язані з роботою, кар'єрним розвитком, зміною роботодавця або професійним ростом.",
+    ["career", "job", "work", "employment", "profession"]
+  ),
+  defineCategory(
+    "Finance",
+    "Фінанси",
+    "Рішення щодо грошей, інвестицій, заощаджень, кредитів або особистого бюджету.",
+    ["finance", "money", "investing", "investment", "savings", "budget"]
+  ),
+  defineCategory(
+    "Education",
+    "Освіта",
+    "Рішення про навчання, освіту, курси, університет або професійну перекваліфікацію.",
+    ["education", "learning", "study", "school", "university"]
+  ),
+  defineCategory(
+    "Health",
+    "Здоров'я",
+    "Рішення щодо здоров'я, лікування, медичних процедур або способу життя з фокусом на здоров'я.",
+    ["health", "medical", "medicine", "wellness", "mental health"]
+  ),
+  defineCategory(
+    "Relationships",
+    "Стосунки",
+    "Рішення про стосунки, партнерство, шлюб, розлучення або міжособистісні конфлікти.",
+    ["relationship", "relationships", "dating", "marriage", "partner"]
+  ),
+  defineCategory(
+    "Business",
+    "Бізнес",
+    "Рішення про власну справу, стартап, компанію або підприємницьку діяльність.",
+    ["business", "startup", "entrepreneurship", "company"]
+  ),
+  defineCategory(
+    "Personal Safety",
+    "Особиста безпека",
+    "Рішення, пов'язані з фізичною безпекою, війною, евакуацією, мобілізацією або ризиками для життя.",
+    [
+      "personal safety",
+      "safety",
+      "risk",
+      "security",
+      "war",
+      "evacuation",
+      "mobilization",
+      "danger",
+      "threat",
+      "violence",
+    ]
+  ),
+  defineCategory(
+    "Legal",
+    "Право",
+    "Рішення щодо правового статусу, віз, імміграції, законодавчих обмежень або юридичних питань.",
+    [
+      "legal",
+      "law",
+      "immigration",
+      "visa",
+      "visas",
+      "regulation",
+      "regulations",
+      "compliance",
+      "litigation",
+    ]
+  ),
+  defineCategory(
+    "Housing",
+    "Житло",
+    "Рішення щодо житла, оренди, купівлі нерухомості або переїзду.",
+    ["housing", "home", "rent", "apartment", "moving", "relocation"]
+  ),
+  defineCategory(
+    "Lifestyle",
+    "Стиль життя",
+    "Особисті звички, хобі або життєві вибори, які не належать до конкретнішої категорії.",
+    ["lifestyle", "hobby", "hobbies", "routine"]
+  ),
+  defineCategory(
+    "Travel",
+    "Подорожі",
+    "Рішення про подорожі, відпустку, туристичні поїздки або тимчасові переїзди.",
+    ["travel", "trip", "vacation", "tourism"]
+  ),
+  defineCategory(
+    "Family",
+    "Сім'я",
+    "Рішення про сім'ю, дітей, батьківство або догляд за близькими.",
+    ["family", "parenting", "children", "childcare"]
+  ),
+  defineCategory(
+    "Technology",
+    "Технології",
+    "Рішення про софт, гаджети, цифрові інструменти або технологічні покупки.",
+    ["technology", "tech", "software", "digital", "gadgets"]
+  ),
+  defineCategory(
+    "Other",
+    "Інше",
+    GENERIC_CATEGORY_DESCRIPTION,
+    ["other", "general", "personal", "misc", "miscellaneous"]
+  ),
 ];
 
 export const DECISION_CATEGORY_KEYS = DECISION_CATEGORY_DEFINITIONS.map(
@@ -197,6 +202,28 @@ export function getCategorySlug(category: string) {
 export function getCategoryLabel(category: string) {
   const normalized = normalizeCategory(category);
   return definitionByKey.get(normalized)?.labelUk ?? normalized;
+}
+
+export function getCategoryDescription(category: string) {
+  const normalized = normalizeCategory(category);
+  return (
+    definitionByKey.get(normalized)?.descriptionUk ?? GENERIC_CATEGORY_DESCRIPTION
+  );
+}
+
+export function getCategoryFilterOptions() {
+  return [
+    {
+      slug: "all" as const,
+      labelUk: "Усі категорії",
+      descriptionUk: null,
+    },
+    ...DECISION_CATEGORY_DEFINITIONS.map((definition) => ({
+      slug: definition.slug as DecisionCategorySlug,
+      labelUk: definition.labelUk,
+      descriptionUk: definition.descriptionUk,
+    })),
+  ];
 }
 
 export function getCategoryFilterLabels(): Record<

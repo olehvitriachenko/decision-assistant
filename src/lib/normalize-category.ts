@@ -1,7 +1,9 @@
 export {
   categoryRegistryKeySchema,
   DECISION_CATEGORY_KEYS,
+  getCategoryDescription,
   getCategoryFilterLabels,
+  getCategoryFilterOptions,
   getCategoryLabel,
   getCategoryPromptGuidance,
   getCategoryPromptWhitelist,

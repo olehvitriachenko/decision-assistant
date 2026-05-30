@@ -18,33 +18,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-function DecisionListBadges({ decision }: { decision: DecisionListItem }) {
-  const showStatus = decision.status !== "completed";
-  const showCategory = Boolean(decision.analysis_category);
-  const showSupport = decision.analysis_confidence !== null;
-
-  if (!showStatus && !showCategory && !showSupport) {
-    return null;
-  }
-
-  return (
-    <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-      {showStatus ? (
-        <DecisionStatusBadge status={decision.status} size="md" />
-      ) : null}
-      {showCategory ? (
-        <CategoryBadge category={decision.analysis_category!} size="md" />
-      ) : null}
-      {showSupport ? (
-        <SupportScoreBadge
-          confidence={decision.analysis_confidence!}
-          size="md"
-        />
-      ) : null}
-    </div>
-  );
-}
-
 export function DecisionsList({
   decisions,
   hasActiveFilters = false,
@@ -93,29 +66,41 @@ export function DecisionsList({
             size="sm"
             className="border-border/60 bg-card/60 backdrop-blur-sm transition-all duration-200 hover:border-foreground/20 hover:bg-muted/25 hover:shadow-sm active:scale-[0.998]"
           >
-            <CardHeader className="gap-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1 space-y-2">
-                  <CardTitle className="line-clamp-2 text-base leading-snug transition-colors group-hover:text-foreground">
-                    {decision.title}
-                  </CardTitle>
-                  <CardDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span>
-                      {m.common.createdAt(formatDateTime(decision.created_at))}
-                    </span>
-                    {decision.status === "completed" ? (
-                      <>
-                        <span className="text-muted-foreground/40" aria-hidden="true">
-                          ·
-                        </span>
-                        <DecisionStatusBadge status={decision.status} />
-                      </>
-                    ) : null}
-                  </CardDescription>
+            <CardHeader className="gap-2.5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                  {decision.analysis_category ? (
+                    <CategoryBadge
+                      category={decision.analysis_category}
+                      size="md"
+                      variant="prominent"
+                    />
+                  ) : null}
+                  {decision.analysis_confidence !== null ? (
+                    <SupportScoreBadge
+                      confidence={decision.analysis_confidence}
+                      size="md"
+                    />
+                  ) : null}
                 </div>
-                <DecisionListBadges decision={decision} />
+                <div className="shrink-0">
+                  <DecisionStatusBadge status={decision.status} size="md" />
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+
+              <CardTitle className="line-clamp-2 text-base leading-snug transition-colors group-hover:text-foreground">
+                {decision.title}
+              </CardTitle>
+
+              <CardDescription className="line-clamp-2 text-sm leading-relaxed text-pretty">
+                {decision.decision}
+              </CardDescription>
+
+              <p className="text-xs text-muted-foreground">
+                {m.common.createdAt(formatDateTime(decision.created_at))}
+              </p>
+
+              <div className="hidden items-center gap-1 pt-0.5 text-xs font-medium text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:flex">
                 {m.decisions.list.viewDetails}
                 <ArrowRight className="size-3.5" aria-hidden="true" />
               </div>
