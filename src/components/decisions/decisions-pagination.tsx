@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -8,6 +10,15 @@ import {
 import { m } from "@/lib/i18n/uk";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+function scrollDecisionsListToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+}
+
+const paginationLinkProps = {
+  scroll: false as const,
+  onClick: scrollDecisionsListToTop,
+};
 
 export function DecisionsPagination({
   page,
@@ -49,7 +60,10 @@ export function DecisionsPagination({
               {m.common.previous}
             </span>
           ) : (
-            <Link href={decisionsListHref({ page: page - 1, ...query })}>
+            <Link
+              href={decisionsListHref({ page: page - 1, ...query })}
+              {...paginationLinkProps}
+            >
               <ChevronLeft className="size-4" aria-hidden="true" />
               {m.common.previous}
             </Link>
@@ -68,6 +82,7 @@ export function DecisionsPagination({
               <Link
                 href={decisionsListHref({ page: pageNumber, ...query })}
                 aria-current={pageNumber === page ? "page" : undefined}
+                {...paginationLinkProps}
               >
                 {pageNumber}
               </Link>
@@ -88,7 +103,10 @@ export function DecisionsPagination({
               <ChevronRight className="size-4" aria-hidden="true" />
             </span>
           ) : (
-            <Link href={decisionsListHref({ page: page + 1, ...query })}>
+            <Link
+              href={decisionsListHref({ page: page + 1, ...query })}
+              {...paginationLinkProps}
+            >
               {m.common.next}
               <ChevronRight className="size-4" aria-hidden="true" />
             </Link>

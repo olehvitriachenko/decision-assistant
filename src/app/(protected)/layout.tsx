@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
@@ -19,9 +18,7 @@ export default async function ProtectedLayout({
 
   return (
     <>
-      <Suspense fallback={null}>
-        <ScrollToTop />
-      </Suspense>
+      <ScrollToTop />
       <AppHeader userEmail={user.email ?? ""} />
       {children}
     </>

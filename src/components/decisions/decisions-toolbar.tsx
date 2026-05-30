@@ -100,7 +100,9 @@ export function DecisionsToolbar({
   function navigate(updates: Partial<DecisionListQuery>) {
     const next = updateSearchParams(searchParams, updates);
     const queryString = next.toString();
-    router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    router.push(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
   }
 
   return (
@@ -232,7 +234,9 @@ export function DecisionsToolbar({
             ) : null}
           </div>
           <Button asChild variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-            <Link href={decisionsListHref()}>{m.decisions.toolbar.clearFilters}</Link>
+            <Link href={decisionsListHref()} scroll={false}>
+              {m.decisions.toolbar.clearFilters}
+            </Link>
           </Button>
         </div>
       ) : null}
