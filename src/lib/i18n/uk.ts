@@ -16,7 +16,7 @@ export const m = {
     password: "Пароль",
     backToHome: "На головну",
     tryAgain: "Спробувати знову",
-    goToDashboard: "На панель",
+    goToDashboard: "Повернутись до панелі",
     menu: "Меню",
     mainNav: "Головна навігація",
     openNavMenu: "Відкрити мені навігації",
@@ -241,6 +241,11 @@ export const m = {
     protectedTitle: "Не вдалося завантажити сторінку",
     protectedDescription:
       "Під час отримання даних сталася помилка. Спробуйте ще раз або поверніться на панель.",
+    notFoundTitle: "Сторінку не знайдено",
+    notFoundDescription:
+      "Посилання недійсне або сторінку переміщено.",
+    protectedNotFoundDescription:
+      "Рішення не існує або у вас немає до нього доступу.",
   },
 } as const;
 
