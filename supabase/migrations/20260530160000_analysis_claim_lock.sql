@@ -65,25 +65,8 @@ as $$
    where id = p_decision_id;
 $$;
 
-create or replace function public.bump_decision_analysis_generation(
-  p_decision_id uuid
-)
-returns bigint
-language sql
-volatile
-set search_path = public
-as $$
-  update public.decisions
-     set analysis_generation = analysis_generation + 1,
-         analysis_locked_at = null
-   where id = p_decision_id
-  returning analysis_generation;
-$$;
-
 revoke all on function public.claim_decision_analysis_lock(uuid, integer) from public;
 revoke all on function public.release_decision_analysis_lock(uuid) from public;
-revoke all on function public.bump_decision_analysis_generation(uuid) from public;
 
 grant execute on function public.claim_decision_analysis_lock(uuid, integer) to service_role;
 grant execute on function public.release_decision_analysis_lock(uuid) to service_role;
-grant execute on function public.bump_decision_analysis_generation(uuid) to service_role;

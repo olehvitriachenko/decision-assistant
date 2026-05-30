@@ -211,7 +211,7 @@ async function runAnalysisPipeline(
     const updated = await updateDecisionStatusWithRetry(decision.id, "completed");
 
     return updated ? { success: true } : { success: false };
-  } catch (error) {
+  } catch {
     if (await isAnalysisGenerationCurrent(decision.id, claimedGeneration)) {
       await updateDecisionStatusWithRetry(decision.id, "failed");
     }

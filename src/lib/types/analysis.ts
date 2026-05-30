@@ -9,15 +9,12 @@ export type Analysis = {
   created_at: string;
 };
 
-export type CreateAnalysisInput = {
+export type InsertAnalysisIfGenerationMatchesInput = {
   decisionId: string;
+  expectedGeneration: number;
   category: string;
   confidence: number;
   biases: string[];
   alternatives: string[];
   summary: string;
-};
-
-export type InsertAnalysisIfGenerationMatchesInput = CreateAnalysisInput & {
-  expectedGeneration: number;
 };

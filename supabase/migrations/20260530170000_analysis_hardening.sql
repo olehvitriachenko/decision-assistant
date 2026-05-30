@@ -43,3 +43,6 @@ $$;
 revoke all on function public.reset_decision_analysis(uuid) from public;
 
 grant execute on function public.reset_decision_analysis(uuid) to service_role;
+
+-- reset_decision_analysis supersedes the earlier bump-only helper.
+drop function if exists public.bump_decision_analysis_generation(uuid);

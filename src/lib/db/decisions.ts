@@ -418,34 +418,16 @@ export async function releaseDecisionAnalysisLock(
   }
 }
 
-export async function bumpDecisionAnalysisGeneration(
-  decisionId: string
-): Promise<number> {
+export async function resetDecisionAnalysis(decisionId: string): Promise<void> {
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase.rpc("bump_decision_analysis_generation", {
+  const { error } = await supabase.rpc("reset_decision_analysis", {
     p_decision_id: decisionId,
   });
 
   if (error) {
     throw new Error(error.message);
   }
-
-  return Number(data ?? 0);
-}
-
-export async function resetDecisionAnalysis(decisionId: string): Promise<number> {
-  const supabase = createAdminClient();
-
-  const { data, error } = await supabase.rpc("reset_decision_analysis", {
-    p_decision_id: decisionId,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return Number(data ?? 0);
 }
 
 export async function deleteDecisionById(decisionId: string): Promise<void> {
