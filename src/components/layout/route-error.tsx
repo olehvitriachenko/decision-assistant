@@ -13,11 +13,19 @@ export function RouteError({
   reset,
   title = m.errors.genericTitle,
   description = m.errors.genericDescription,
+  secondaryAction = {
+    href: routes.dashboard,
+    label: m.common.goToDashboard,
+  },
 }: {
   error: Error & { digest?: string };
   reset: () => void;
   title?: string;
   description?: string;
+  secondaryAction?: {
+    href: string;
+    label: string;
+  };
 }) {
   useEffect(() => {
     console.error(error);
@@ -35,7 +43,7 @@ export function RouteError({
             {m.common.tryAgain}
           </Button>
           <Button asChild variant="outline">
-            <Link href={routes.dashboard}>{m.common.goToDashboard}</Link>
+            <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
           </Button>
         </div>
       </div>
