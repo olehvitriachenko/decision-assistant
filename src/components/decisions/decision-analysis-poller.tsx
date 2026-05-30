@@ -13,7 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 import type { DecisionStatus } from "@/lib/types/decision";
 
-const POLL_INTERVAL_MS = 2500;
+const REFRESH_INTERVAL_MS = 2500;
+const RECOVERY_INTERVAL_MS = 60_000;
 
 function useProcessingRecovery(decisionIds: string[]) {
   const decisionIdsKey = decisionIds.join(",");
@@ -39,7 +40,7 @@ function useProcessingRecovery(decisionIds: string[]) {
 
     const interval = window.setInterval(() => {
       void recover();
-    }, POLL_INTERVAL_MS);
+    }, RECOVERY_INTERVAL_MS);
 
     return () => {
       cancelled = true;
@@ -68,7 +69,7 @@ export function PageRefreshPoller({ enabled }: { enabled: boolean }) {
 
     const interval = window.setInterval(() => {
       router.refresh();
-    }, POLL_INTERVAL_MS);
+    }, REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
   }, [enabled, router]);

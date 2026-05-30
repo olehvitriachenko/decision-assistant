@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  ANALYSIS_RECOVERY_MS,
   PROCESSING_STALE_MS,
   STATUS_UPDATE_MAX_ATTEMPTS,
 } from "@/lib/config/analysis";
@@ -94,10 +95,22 @@ async function syncCompletedDecision(decisionId: string) {
   return updated;
 }
 
-function isProcessingStale(decision: Decision) {
+function getProcessingAgeMs(decision: Decision) {
   const ageMs = Date.now() - Date.parse(decision.updated_at);
 
-  return Number.isFinite(ageMs) && ageMs >= PROCESSING_STALE_MS;
+  return Number.isFinite(ageMs) ? ageMs : null;
+}
+
+function isProcessingStale(decision: Decision) {
+  const ageMs = getProcessingAgeMs(decision);
+
+  return ageMs !== null && ageMs >= PROCESSING_STALE_MS;
+}
+
+function isProcessingNeedsRecovery(decision: Decision) {
+  const ageMs = getProcessingAgeMs(decision);
+
+  return ageMs !== null && ageMs >= ANALYSIS_RECOVERY_MS;
 }
 
 async function runAnalysisPipeline(
@@ -126,6 +139,13 @@ async function runAnalysisPipeline(
   }
 
   try {
+    const latestAnalysis = await getAnalysisByDecisionId(decision.id);
+
+    if (latestAnalysis && !options.forceReanalysis) {
+      await syncCompletedDecision(decision.id);
+      return { success: true };
+    }
+
     const analysis = await analyzeDecision({
       title: decision.title,
       situation: decision.situation,
@@ -287,17 +307,15 @@ export async function resumePendingAnalysis(decisionId: string): Promise<void> {
     return;
   }
 
-  if (isProcessingStale(decision)) {
-    const result = await runAnalysisPipeline(decision);
-
-    if (!result.success) {
-      await updateDecisionStatusWithRetry(decisionId, "failed");
-    }
-
-    revalidateDecisionPaths(decisionId);
+  if (!isProcessingNeedsRecovery(decision)) {
     return;
   }
 
-  await runAnalysisPipeline(decision);
+  const result = await runAnalysisPipeline(decision);
+
+  if (!result.success && isProcessingStale(decision)) {
+    await updateDecisionStatusWithRetry(decisionId, "failed");
+  }
+
   revalidateDecisionPaths(decisionId);
 }
