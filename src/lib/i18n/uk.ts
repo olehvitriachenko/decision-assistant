@@ -142,9 +142,7 @@ export const m = {
     insightsFrom: (countLabel: string) =>
       `Інсайти на основі ${countLabel}.`,
     categoriesTitle: "Категорії рішень",
-    categoriesDescription: "Найпоширеніші типи ваших рішень.",
-    categoriesAiHint:
-      "Категорії автоматично визначаються AI на основі контексту рішення.",
+    categoriesDescription: "Найпоширеніші категорії з AI-аналізу.",
     biasesTitle: "Поширені упередження",
     biasesDescription: "Когнітивні патерни, що з’являються найчастіше.",
     supportTitle: "Розподіл підтримки",
