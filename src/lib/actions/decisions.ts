@@ -10,6 +10,7 @@ import {
 } from "@/lib/config/analysis";
 import {
   createAnalysis,
+  deleteAnalysesByDecisionId,
   getAnalysisByDecisionId,
 } from "@/lib/db/analyses";
 import {
@@ -95,7 +96,8 @@ function isProcessingStale(decision: Decision) {
 }
 
 async function runAnalysisPipeline(
-  decision: Decision
+  decision: Decision,
+  options: { forceReanalysis?: boolean } = {}
 ): Promise<{ success: true } | { success: false }> {
   const current = await getDecisionById(decision.id);
 
@@ -103,7 +105,7 @@ async function runAnalysisPipeline(
     return { success: false };
   }
 
-  if (current.status === "completed") {
+  if (current.status === "completed" && !options.forceReanalysis) {
     return { success: true };
   }
 
@@ -113,7 +115,7 @@ async function runAnalysisPipeline(
 
   const existingAnalysis = await getAnalysisByDecisionId(decision.id);
 
-  if (existingAnalysis) {
+  if (existingAnalysis && !options.forceReanalysis) {
     await syncCompletedDecision(decision.id);
     return { success: true };
   }
@@ -144,9 +146,12 @@ async function runAnalysisPipeline(
   }
 }
 
-function scheduleAnalysisInBackground(decision: Decision) {
+function scheduleAnalysisInBackground(
+  decision: Decision,
+  options: { forceReanalysis?: boolean } = {}
+) {
   after(async () => {
-    await runAnalysisPipeline(decision);
+    await runAnalysisPipeline(decision, options);
     revalidateDecisionPaths(decision.id);
   });
 }
@@ -167,6 +172,7 @@ export async function reanalyzeDecision(
   }
 
   try {
+    await deleteAnalysesByDecisionId(decisionId);
     await updateDecisionStatus(decisionId, "processing");
   } catch (error) {
     return {
@@ -177,7 +183,14 @@ export async function reanalyzeDecision(
     };
   }
 
-  scheduleAnalysisInBackground(decision);
+  const refreshedDecision = await getDecisionById(decisionId);
+
+  if (!refreshedDecision) {
+    return { error: m.decisions.errors.notFound };
+  }
+
+  revalidateDecisionPaths(decisionId);
+  scheduleAnalysisInBackground(refreshedDecision, { forceReanalysis: true });
 
   return {};
 }

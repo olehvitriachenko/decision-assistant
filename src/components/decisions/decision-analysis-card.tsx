@@ -2,7 +2,7 @@
 
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { reanalyzeDecision } from "@/lib/actions/decisions";
 import { m } from "@/lib/i18n/uk";
@@ -12,6 +12,7 @@ import {
   CategoryBadge,
   SupportScoreBadge,
 } from "@/components/decisions/decision-badges";
+import { DecisionProcessingCard } from "@/components/decisions/decision-analysis-poller";
 import { BiasInsightsList } from "@/components/decisions/bias-insights-list";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,14 @@ export function DecisionAnalysisCard({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (decision.status !== "processing") {
+      setIsReanalyzing(false);
+    }
+  }, [decision.status]);
 
   function handleReanalyze() {
     setError(null);
@@ -42,9 +50,11 @@ export function DecisionAnalysisCard({
 
       if (result.error) {
         setError(result.error);
+        setIsReanalyzing(false);
         return;
       }
 
+      setIsReanalyzing(true);
       router.refresh();
     });
   }
@@ -83,6 +93,10 @@ export function DecisionAnalysisCard({
 
   if (!analysis) {
     return null;
+  }
+
+  if (isReanalyzing || decision.status === "processing") {
+    return <DecisionProcessingCard />;
   }
 
   return (

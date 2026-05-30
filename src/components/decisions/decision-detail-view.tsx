@@ -91,7 +91,7 @@ export function DecisionDetailView({
         </CardContent>
       </Card>
 
-      {decision.status === "processing" ? <DecisionProcessingCard /> : null}
+      {decision.status === "processing" && !analysis ? <DecisionProcessingCard /> : null}
 
       {decision.status !== "processing" && (analysis || decision.status === "failed") ? (
         <DecisionAnalysisCard decision={decision} analysis={analysis} />

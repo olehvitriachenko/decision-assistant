@@ -113,6 +113,19 @@ export async function getLatestAnalysesWithBiasesByDecisionIds(
   return latestByDecisionId;
 }
 
+export async function deleteAnalysesByDecisionId(decisionId: string): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from(analysesTableName)
+    .delete()
+    .eq("decision_id", decisionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function getAnalysisByDecisionId(
   decisionId: string
 ): Promise<Analysis | null> {
