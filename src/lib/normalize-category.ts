@@ -1,0 +1,14 @@
+export {
+  categoryRegistryKeySchema,
+  DECISION_CATEGORY_KEYS,
+  getCategoryFilterLabels,
+  getCategoryLabel,
+  getCategoryPromptGuidance,
+  getCategoryPromptWhitelist,
+  getCategorySlug,
+  matchesDecisionCategoryFilter,
+  normalizeCategory,
+  type DecisionCategory,
+  type DecisionCategoryFilter,
+  type DecisionCategorySlug,
+} from "@/lib/categories/registry";

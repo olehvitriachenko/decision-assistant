@@ -1,18 +1,17 @@
 import {
   type DecisionCategoryFilter,
-  decisionCategoryFilterLabels,
   type DecisionListQuery,
   type DecisionSortOption,
   DEFAULT_DECISION_LIST_QUERY,
   matchesDecisionCategoryFilter,
   statusFilterToDecisionStatus,
 } from "@/lib/config/decision-list-params";
+import { getCategoryLabel, getCategorySlug } from "@/lib/categories/registry";
 import { decisionsTableName } from "@/lib/config/database";
 import {
   getLatestAnalysesByDecisionIds,
   getLatestAnalysesWithBiasesByDecisionIds,
 } from "@/lib/db/analyses";
-import { normalizeDecisionCategory } from "@/lib/config/decision-list-params";
 import { normalizeBias } from "@/lib/normalize-bias";
 import { getSupportLevel } from "@/lib/support-score";
 import { getDecisionComplexityScore } from "@/lib/decision-complexity";
@@ -71,28 +70,14 @@ type AnalysisSummary = {
 const DASHBOARD_INSIGHTS_LIMIT = 6;
 
 function formatCategoryLabel(value: string) {
-  const key = normalizeDecisionCategory(value);
-  const knownLabel =
-    key in decisionCategoryFilterLabels
-      ? decisionCategoryFilterLabels[key as DecisionCategoryFilter]
-      : null;
-
-  if (knownLabel && key !== "all") {
-    return knownLabel;
-  }
-
-  return key
-    .split(/[\s_-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  return getCategoryLabel(value);
 }
 
 function countCategoryFrequencies(values: string[]) {
   const counts = new Map<string, { label: string; count: number }>();
 
   for (const value of values) {
-    const key = normalizeDecisionCategory(value);
+    const key = getCategorySlug(value);
 
     if (!key) {
       continue;

@@ -7,6 +7,11 @@ import {
   getBiasPromptWhitelist,
   normalizeAnalysisBiases,
 } from "@/lib/biases/registry";
+import {
+  categoryRegistryKeySchema,
+  getCategoryPromptGuidance,
+  normalizeCategory,
+} from "@/lib/categories/registry";
 
 const MODEL = "gpt-4.1-mini";
 
@@ -18,7 +23,10 @@ export const analyzeDecisionInputSchema = z.object({
 });
 
 export const decisionAnalysisSchema = z.object({
-  category: z.string().trim().min(1),
+  category: z.preprocess(
+    (value) => (typeof value === "string" ? normalizeCategory(value) : value),
+    categoryRegistryKeySchema
+  ).describe("Exactly one decision category from the allowed list."),
   confidence: z
     .number()
     .int()
@@ -66,7 +74,7 @@ function buildUserPrompt(input: AnalyzeDecisionInput) {
 const SYSTEM_PROMPT = `Ти — помічник з аналізу рішень.
 
 Проаналізуй контекст рішення користувача та поверни структурований JSON:
-- category: короткий ключ типу рішення англійською малими літерами (наприклад: career, finance, relationship, health, education, lifestyle)
+- category: ${getCategoryPromptGuidance()}
 - confidence: ціле число від 0 до 100 (див. шкалу нижче)
 - biases: масив ключів когнітивних упереджень ТІЛЬКИ зі списку нижче (копіюй ключ дослівно, без змін):
 ${getBiasPromptWhitelist()}
@@ -142,6 +150,7 @@ export async function analyzeDecision(
 
   return {
     ...validated.data,
+    category: normalizeCategory(validated.data.category),
     biases: normalizeAnalysisBiases(validated.data.biases),
   };
 }

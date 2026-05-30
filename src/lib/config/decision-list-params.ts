@@ -1,4 +1,10 @@
 import { routes } from "@/lib/config/routes";
+import {
+  decisionCategoryFilterOptions,
+  getCategoryFilterLabels,
+  matchesDecisionCategoryFilter,
+  type DecisionCategoryFilter,
+} from "@/lib/categories/registry";
 import { m } from "@/lib/i18n/uk";
 import type { DecisionStatus } from "@/lib/types/decision";
 
@@ -33,28 +39,14 @@ export const DEFAULT_DECISION_STATUS_FILTER: DecisionStatusFilter = "all";
 
 export const decisionStatusFilterLabels = m.config.statusFilter;
 
-export const decisionCategoryFilterOptions = [
-  "all",
-  "career",
-  "finance",
-  "health",
-  "education",
-  "lifestyle",
-] as const;
-
-export type DecisionCategoryFilter =
-  (typeof decisionCategoryFilterOptions)[number];
+export {
+  decisionCategoryFilterOptions,
+  type DecisionCategoryFilter,
+};
 
 export const DEFAULT_DECISION_CATEGORY_FILTER: DecisionCategoryFilter = "all";
 
-export const decisionCategoryFilterLabels = {
-  all: m.config.category.all,
-  career: m.config.category.career,
-  finance: m.config.category.finance,
-  health: m.config.category.health,
-  education: m.config.category.education,
-  lifestyle: m.config.category.lifestyle,
-};
+export const decisionCategoryFilterLabels = getCategoryFilterLabels();
 
 export type DecisionListQuery = {
   sort: DecisionSortOption;
@@ -133,24 +125,7 @@ export function parseDecisionListQuery(searchParams: {
   };
 }
 
-export function normalizeDecisionCategory(value: string) {
-  return value.trim().toLowerCase();
-}
-
-export function matchesDecisionCategoryFilter(
-  analysisCategory: string | null | undefined,
-  filter: DecisionCategoryFilter
-) {
-  if (filter === "all") {
-    return true;
-  }
-
-  if (!analysisCategory) {
-    return false;
-  }
-
-  return normalizeDecisionCategory(analysisCategory) === filter;
-}
+export { matchesDecisionCategoryFilter };
 
 export function statusFilterToDecisionStatus(
   filter: DecisionStatusFilter

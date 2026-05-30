@@ -1,8 +1,9 @@
+import type { DecisionCategoryFilter } from "@/lib/categories/registry";
+import { getCategoryFilterLabels } from "@/lib/categories/registry";
 import type { DecisionSortOption } from "@/lib/config/decision-list-params";
 import type { DecisionStatusFilter } from "@/lib/config/decision-list-params";
 import type { DecisionStatus } from "@/lib/types/decision";
 import type { SupportLevel } from "@/lib/support-score";
-import { categoryLabels } from "@/lib/i18n/format";
 
 export const m = {
   meta: {
@@ -223,14 +224,10 @@ export const m = {
       processing: "В обробці",
       failed: "Помилка",
     } satisfies Record<DecisionStatusFilter, string>,
-    category: {
-      all: categoryLabels.all,
-      career: categoryLabels.career,
-      finance: categoryLabels.finance,
-      health: categoryLabels.health,
-      education: categoryLabels.education,
-      lifestyle: categoryLabels.lifestyle,
-    },
+    category: getCategoryFilterLabels() satisfies Record<
+      DecisionCategoryFilter,
+      string
+    >,
     allBiases: "Усі упередження",
   },
 

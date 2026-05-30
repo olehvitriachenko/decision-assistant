@@ -1,3 +1,5 @@
+import { getCategoryLabel } from "@/lib/categories/registry";
+
 const dateTimeFormatter = new Intl.DateTimeFormat("uk-UA", {
   dateStyle: "medium",
   timeStyle: "short",
@@ -42,25 +44,5 @@ export function formatAnalyzedDecisionCount(count: number) {
 }
 
 export function formatCategoryDisplay(category: string) {
-  const key = category.trim().toLowerCase();
-
-  if (key in categoryLabels && key !== "all") {
-    return categoryLabels[key as keyof typeof categoryLabels];
-  }
-
-  return category
-    .split(/[\s_-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  return getCategoryLabel(category);
 }
-
-export const categoryLabels = {
-  all: "Усі категорії",
-  career: "Кар'єра",
-  finance: "Фінанси",
-  health: "Здоров'я",
-  education: "Освіта",
-  lifestyle: "Стиль життя",
-  relationship: "Стосунки",
-} as const;
