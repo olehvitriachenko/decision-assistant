@@ -238,10 +238,14 @@ Automated tests are not included — the assignment focused on a working demo an
 
 ## Future Improvements
 
-- Multi-language support
+- Additional locales (English UI, shared i18n layer)
 - Decision comparison
-- Export functionality
+- Export (PDF / Markdown)
 - Advanced analytics
+- Email verification and account confirmation flows
+- Password reset and account recovery
+- Automated tests (unit and end-to-end)
+- Rate limiting for auth and AI analysis requests
 
 ## Notes
 
