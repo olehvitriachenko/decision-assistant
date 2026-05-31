@@ -11,6 +11,7 @@ import {
 import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
 import { DecisionsPageContent } from "@/components/decisions/decisions-page-content";
+import { NewDecisionButton } from "@/components/decisions/new-decision-button";
 import { PageContainer } from "@/components/layout/page-container";
 
 function parsePageParam(value: string | undefined) {
@@ -63,13 +64,16 @@ export default async function DecisionsPage({
 
   return (
     <PageContainer>
-      <div className="space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {m.decisions.allTitle}
-        </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground text-pretty">
-          {m.decisions.allDescription}
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {m.decisions.allTitle}
+          </h1>
+          <p className="max-w-2xl text-sm text-muted-foreground text-pretty">
+            {m.decisions.allDescription}
+          </p>
+        </div>
+        <NewDecisionButton fullWidth className="shrink-0 md:hidden" />
       </div>
 
       <DecisionsPageContent

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, List, Menu, Plus, Sparkles } from "lucide-react";
+import { LayoutDashboard, List, Menu, Sparkles } from "lucide-react";
 
 import { routes } from "@/lib/config/routes";
 import { m } from "@/lib/i18n/uk";
@@ -10,6 +10,7 @@ import { elevatedSurfaceClassName, headerSurfaceClassName, iconSurfaceClassName 
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
+import { NewDecisionButton } from "@/components/decisions/new-decision-button";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -83,12 +84,9 @@ export function AppHeader({ userEmail }: { userEmail: string }) {
         <div className="ml-auto flex items-center gap-1.5">
           <ThemeToggle />
 
-          <Button asChild size="sm" className="hidden md:inline-flex">
-            <Link href={routes.decisionsNew}>
-              <Plus className="size-4" aria-hidden="true" />
-              {m.nav.newDecision}
-            </Link>
-          </Button>
+          <NewDecisionButton showLabel={false} className="md:hidden" />
+
+          <NewDecisionButton className="hidden md:inline-flex" />
 
           <UserMenu email={userEmail} />
 
@@ -122,13 +120,6 @@ export function AppHeader({ userEmail }: { userEmail: string }) {
                   </DropdownMenuItem>
                 );
               })}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href={routes.decisionsNew}>
-                  <Plus aria-hidden="true" />
-                  {m.nav.newDecision}
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
