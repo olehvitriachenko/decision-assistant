@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { m } from "@/lib/i18n/uk";
+import { THEME_INIT_SCRIPT } from "@/lib/theme/constants";
 
 import "./globals.css";
 
@@ -33,6 +34,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
+      </head>
       <body className="min-h-full">
         <ThemeProvider
           attribute="class"
