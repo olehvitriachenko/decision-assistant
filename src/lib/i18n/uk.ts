@@ -273,6 +273,7 @@ export const m = {
       categoryPrefix: "Категорія:",
       biasPrefix: "Упередження:",
       clearFilters: "Скинути фільтри",
+      removeFilter: (label: string) => `Прибрати фільтр «${label}»`,
     },
   },
 

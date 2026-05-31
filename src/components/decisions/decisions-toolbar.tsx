@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import {
@@ -26,7 +27,7 @@ import { cn } from "@/lib/utils";
 import type { DecisionBiasFilterOption } from "@/lib/db/decisions";
 import { m } from "@/lib/i18n/uk";
 import { useDecisionsNavigation } from "@/components/decisions/decisions-navigation-context";
-import { Badge } from "@/components/ui/badge";
+import { badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -79,6 +80,29 @@ function updateSearchParams(
   }
 
   return next;
+}
+
+function ActiveFilterChip({
+  label,
+  onRemove,
+}: {
+  label: string;
+  onRemove: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onRemove}
+      aria-label={m.decisions.toolbar.removeFilter(label)}
+      className={cn(
+        badgeVariants({ variant: "secondary" }),
+        "h-auto min-h-5 max-w-full cursor-pointer gap-1 py-0.5 pr-1.5 pl-2 text-left whitespace-normal hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      )}
+    >
+      <span className="min-w-0 text-pretty">{label}</span>
+      <X className="size-3 shrink-0 opacity-60" aria-hidden="true" />
+    </button>
+  );
 }
 
 export function DecisionsToolbar({
@@ -208,27 +232,32 @@ export function DecisionsToolbar({
               {m.decisions.toolbar.activeFilters}
             </span>
             {query.sort !== DEFAULT_DECISION_SORT ? (
-              <Badge variant="secondary">
-                {m.decisions.toolbar.sortPrefix} {decisionSortLabels[query.sort]}
-              </Badge>
+              <ActiveFilterChip
+                label={`${m.decisions.toolbar.sortPrefix} ${decisionSortLabels[query.sort]}`}
+                onRemove={() => applyFilters({ sort: DEFAULT_DECISION_SORT })}
+              />
             ) : null}
             {query.status !== DEFAULT_DECISION_STATUS_FILTER ? (
-              <Badge variant="secondary">
-                {m.decisions.toolbar.statusPrefix}{" "}
-                {decisionStatusFilterLabels[query.status]}
-              </Badge>
+              <ActiveFilterChip
+                label={`${m.decisions.toolbar.statusPrefix} ${decisionStatusFilterLabels[query.status]}`}
+                onRemove={() =>
+                  applyFilters({ status: DEFAULT_DECISION_STATUS_FILTER })
+                }
+              />
             ) : null}
             {query.category !== DEFAULT_DECISION_CATEGORY_FILTER ? (
-              <Badge variant="secondary">
-                {m.decisions.toolbar.categoryPrefix}{" "}
-                {decisionCategoryFilterLabels[query.category]}
-              </Badge>
+              <ActiveFilterChip
+                label={`${m.decisions.toolbar.categoryPrefix} ${decisionCategoryFilterLabels[query.category]}`}
+                onRemove={() =>
+                  applyFilters({ category: DEFAULT_DECISION_CATEGORY_FILTER })
+                }
+              />
             ) : null}
             {query.bias !== DEFAULT_DECISION_BIAS_FILTER ? (
-              <Badge variant="secondary">
-                {m.decisions.toolbar.biasPrefix}{" "}
-                {getBiasFilterLabel(query.bias, biasOptions)}
-              </Badge>
+              <ActiveFilterChip
+                label={`${m.decisions.toolbar.biasPrefix} ${getBiasFilterLabel(query.bias, biasOptions)}`}
+                onRemove={() => applyFilters({ bias: DEFAULT_DECISION_BIAS_FILTER })}
+              />
             ) : null}
           </div>
           <Button
