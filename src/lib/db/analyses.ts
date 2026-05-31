@@ -101,3 +101,29 @@ export async function getAnalysisByDecisionId(
     alternatives: data.alternatives as string[],
   };
 }
+
+export async function getAnalysisByDecisionIdAdmin(
+  decisionId: string
+): Promise<Analysis | null> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from(analysesTableName)
+    .select("*")
+    .eq("decision_id", decisionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    ...data,
+    biases: data.biases as string[],
+    alternatives: data.alternatives as string[],
+  };
+}

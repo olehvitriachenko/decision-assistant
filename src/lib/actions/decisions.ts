@@ -12,6 +12,7 @@ import {
 } from "@/lib/config/analysis";
 import {
   getAnalysisByDecisionId,
+  getAnalysisByDecisionIdAdmin,
   insertAnalysisIfGenerationMatches,
 } from "@/lib/db/analyses";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/lib/db/decisions";
 import { analyzeDecision } from "@/lib/openai/analyze-decision";
 import { routes, decisionDetailPath } from "@/lib/config/routes";
+import { logServerError } from "@/lib/errors/public-messages";
 import { m } from "@/lib/i18n/uk";
 import { getUser } from "@/lib/supabase/auth";
 import type { Decision, DecisionStatus } from "@/lib/types/decision";
@@ -138,7 +140,7 @@ async function shouldMarkRecoveryFailed(decisionId: string) {
     return false;
   }
 
-  if (await getAnalysisByDecisionId(decisionId)) {
+  if (await getAnalysisByDecisionIdAdmin(decisionId)) {
     return false;
   }
 
@@ -168,7 +170,7 @@ async function runAnalysisPipeline(
   decision: Decision,
   options: { forceReanalysis?: boolean } = {}
 ): Promise<{ success: true } | { success: false }> {
-  const current = await getDecisionById(decision.id);
+  const current = await getDecisionByIdAdmin(decision.id);
 
   if (!current) {
     return { success: false };
@@ -182,7 +184,7 @@ async function runAnalysisPipeline(
     return { success: false };
   }
 
-  const existingAnalysis = await getAnalysisByDecisionId(decision.id);
+  const existingAnalysis = await getAnalysisByDecisionIdAdmin(decision.id);
 
   if (existingAnalysis && !options.forceReanalysis) {
     await syncCompletedDecision(decision.id);
@@ -195,7 +197,7 @@ async function runAnalysisPipeline(
   );
 
   if (!claim.claimed) {
-    const latestAnalysis = await getAnalysisByDecisionId(decision.id);
+    const latestAnalysis = await getAnalysisByDecisionIdAdmin(decision.id);
 
     if (latestAnalysis && !options.forceReanalysis) {
       await syncCompletedDecision(decision.id);
@@ -234,7 +236,9 @@ async function runAnalysisPipeline(
     });
 
     if (!analysisId) {
-      const insertedByAnotherWorker = await getAnalysisByDecisionId(decision.id);
+      const insertedByAnotherWorker = await getAnalysisByDecisionIdAdmin(
+        decision.id
+      );
 
       if (insertedByAnotherWorker) {
         await syncCompletedDecision(decision.id);
@@ -247,7 +251,9 @@ async function runAnalysisPipeline(
     const updated = await updateDecisionStatusWithRetry(decision.id, "completed");
 
     return updated ? { success: true } : { success: false };
-  } catch {
+  } catch (error) {
+    logServerError(`Analysis pipeline failed for decision ${decision.id}`, error);
+
     if (await isAnalysisGenerationCurrent(decision.id, claimedGeneration)) {
       await updateDecisionStatusWithRetry(decision.id, "failed");
     }
@@ -286,12 +292,8 @@ export async function reanalyzeDecision(
   try {
     await resetDecisionAnalysis(decisionId);
   } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : m.decisions.errors.analysisStartFailed,
-    };
+    logServerError(`Failed to reset analysis for decision ${decisionId}`, error);
+    return { error: m.decisions.errors.analysisStartFailed };
   }
 
   const refreshedDecision = await getDecisionById(decisionId);
@@ -324,12 +326,8 @@ export async function deleteDecision(
   try {
     await deleteDecisionById(decisionId);
   } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : m.decisions.errors.deleteFailed,
-    };
+    logServerError(`Failed to delete decision ${decisionId}`, error);
+    return { error: m.decisions.errors.deleteFailed };
   }
 
   revalidatePath(routes.dashboard);
@@ -360,12 +358,8 @@ export async function createDecision(
   try {
     decision = await createDecisionRecord(user.id, parsed.data);
   } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : m.decisions.errors.createFailed,
-    };
+    logServerError("Failed to create decision", error);
+    return { error: m.decisions.errors.createFailed };
   }
 
   scheduleAnalysisInBackground(decision);

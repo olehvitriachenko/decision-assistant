@@ -3,6 +3,10 @@
 import { redirect } from "next/navigation";
 
 import { routes } from "@/lib/config/routes";
+import {
+  getAuthActionErrorMessage,
+  logServerError,
+} from "@/lib/errors/public-messages";
 import { m } from "@/lib/i18n/uk";
 import { createClient } from "@/lib/supabase/server";
 import { authCredentialsSchema } from "@/lib/validations/auth";
@@ -41,7 +45,8 @@ export async function signInWithPassword(
   });
 
   if (error) {
-    return { error: error.message };
+    logServerError("Sign in failed", error);
+    return { error: getAuthActionErrorMessage(error) };
   }
 
   redirect(routes.dashboard);
@@ -66,7 +71,8 @@ export async function signUp(
   });
 
   if (error) {
-    return { error: error.message };
+    logServerError("Sign up failed", error);
+    return { error: getAuthActionErrorMessage(error) };
   }
 
   if (!data.session) {
@@ -83,7 +89,8 @@ export async function signOut() {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    throw new Error(error.message);
+    logServerError("Sign out failed", error);
+    redirect(routes.login);
   }
 
   redirect(routes.login);
